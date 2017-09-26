@@ -10,4 +10,9 @@ app.get('/', function(req, res) {
     res.render("index");
 });
 
+app.post('/createpoll', function(req, res){
+	console.log('hit createpoll method');
+	res.send('eh');
+});
+
 app.listen(3000);
