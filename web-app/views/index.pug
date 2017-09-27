@@ -11,7 +11,7 @@ html(lang="en")
       $(function(){
         function initializeTagsInput(){
           if ($.fn.tagsinput){
-            $('#pollOptions').tagsinput({
+            $('#choices').tagsinput({
               confirmKeys: [13]
             });
           }
@@ -22,12 +22,22 @@ html(lang="en")
         initializeTagsInput();
 
         $('#submitPoll').click(function(){
-          $.post('createpoll', function(){
-            alert("success");
-          })
-          .fail(function(){
-            alert("failure");
-          })
+
+          var choices = $('#choices').tagsinput('items');
+          var emails = $('#emails').val();
+          $.ajax('createpoll',{
+            method:'POST',
+            data:{choices: choices, emails: emails},
+            dataType:'json',
+            success:
+              function(){
+                alert('success');
+              },
+            error:
+              function(){
+                alert('failure');
+              },
+          });
         });
       });
 
@@ -35,13 +45,13 @@ html(lang="en")
     h1 Better Polling
     h3 Create a list of options below
     div
-      input#pollOptions(
+      input#choices(
         type='text'
       )
 
     h3 Enter respondent emails below
     div
-      input#respondentEmails(
+      input#emails(
         type='text'
         data-role='tagsinput'
       )
