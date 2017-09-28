@@ -10,3 +10,6 @@ html(lang="en")
       var poll = !{JSON.stringify(poll)};
   body
     h1 Ballot
+    ul.list-group
+      each item in poll.options
+        li(data-id=item.id).list-group-item= item.name
