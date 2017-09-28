@@ -18,9 +18,13 @@ app.get('/', function(req, res) {
 });
 
 app.post('/createpoll', urlencodedParser, function(req, res){
-  PollsService.createPoll(req.body.name, req.body.choices);
-  console.log('returned from createPoll');
-  res.status(200).json(null);
+  PollsService.createPoll('name', req.body.choices)
+  .then(function(pollId){
+    res.status(200).json(null);
+  }, function(reason){
+    res.status(500).send(null);
+  });
+  PollsService.sendEmailsForPoll(1, req.body.emails);
 });
 
 app.listen(3000);

@@ -22,7 +22,9 @@ html(lang="en")
         initializeTagsInput();
 
         $('#submitPoll').click(function(){
-          $.post('createpoll', function(){
+          $.post('createpoll', 
+            {choices: $('#pollOptions').tagsinput('items'), emails: $('#respondentEmails').tagsinput('items')},
+            function(){
             alert("success");
           })
           .fail(function(){
