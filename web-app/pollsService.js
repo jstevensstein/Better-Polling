@@ -7,6 +7,7 @@ var Mailjet = require('node-mailjet').connect(
 
 PollsService = function(){
     var SenderAddress = process.env.MJ_SENDER_ADDRESS;
+    var Secret = process.env.SECRET;
 
     let connPromise = mysql.createConnection({
         host:       process.env.MYSQL_HOST,
@@ -46,36 +47,71 @@ PollsService = function(){
         });
     }
 
+    this.validateBallotToken = function(pollId, email, token){
+        return token == generateBallotToken(pollId, email);
+    }
+
+    function generateBallotToken(pollId, email){
+        return sha3_512(pollId + email + Secret);
+    }
+
+    function generateBallotUrl(pollId, email){
+        return 'http://localhost:3000/vote/poll/'+pollId+/email/+email+'?token=' + generateBallotToken(pollId, email);
+    }
+
     this.sendEmailsForPoll = function(pollId, emails){
         //use email as salt; this and the secret will provide enough security for our purposes
-        var secret = process.env.SECRET;
+        
         emails.forEach(function(email){
-            let token = sha3_512(pollId + email);
+            let ballotUrl = generateBallotUrl(pollId, email);
             var options = {
                 'Recipients': [{ Email: email }],
                 'FromEmail': SenderAddress,
                 // Subject
-                'Subject': 'Hello World!',
+                'Subject': 'You have been invited to participate in a Better Poll!',
                 // Body
-                'Text-part': 'Mailjet on Google App Engine with Node.js',
-                'Html-part': '<h3>Mailjet on Google App Engine with Node.js</h3>'
+                'Text-part': 'Please vote at '  + ballotUrl,
+                'Html-part': '<h3>Please vote <a href="' + ballotUrl +'">here</a></h3>'
             };
 
             var sendEmail = Mailjet.post('send');
 
             sendEmail.request(options)
                 .then(function(response, body){
-                    console.log(response);
+                    //console.log(response);
                 })
                 .catch(function(reason){
-                    console.log(reason);
+                    //console.log(reason);
                 });
 
         })
     }
 
     this.getPollById = function(id){
-        return null;
+        var poll;
+        var connection;
+        return connPromise.then(function(conn){
+            connection = conn;
+            return connection.query('select * from `poll` where `id` = ?', [id]);
+        })
+        .then(function(rows){
+            poll = rows[0];
+            if (poll){
+                return connection.query('select * from `poll_option` where `poll_id` = ?', [id]);
+            }
+            return Promise.reject('There is no such poll');
+        })
+        .then(function(rows){
+            if (rows){
+                options = [];
+                rows.forEach(function(element){
+                    options.push({id: element.id, name: element.name});
+                });
+                poll.options = options;
+                return Promise.resolve(poll);
+            }
+            return Promise.reject('There are no options for this poll')
+        });
     }
 }
 
