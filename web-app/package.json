@@ -12,8 +12,11 @@
     "body-parser": "^1.18.2",
     "dotenv": "^4.0.0",
     "express": "^4.15.4",
+    "js-sha3": "^0.6.1",
     "mysql": "^2.14.1",
+    "node-mailjet": "^3.2.1",
     "path": "^0.12.7",
+    "promise-mysql": "^3.1.0",
     "sortablejs": "^1.6.1"
   }
 }
