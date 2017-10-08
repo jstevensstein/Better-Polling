@@ -44,10 +44,18 @@ app.get('/ballot/:id', function(req, res){
   }
 });
 
-app.post('/ballot:id/', function(req, res){
-  token = req.query.token;
+app.post('/ballot/:id/', urlencodedParser, function(req, res){
+  var id = req.params.id;
+  var token = req.query.token;
   if (PollsService.validateBallotToken(id, token)) {
-
+    var order = req.body.order;
+    PollsService.upsertBallot(id, order)
+    .then(function(){
+      res.status(200).json(null);
+    }, function(reason){
+      console.log(reason);
+      res.status(500).send(null);
+    })
   }
   else{
     res.status(403).send(null);

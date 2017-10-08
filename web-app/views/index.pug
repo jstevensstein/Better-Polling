@@ -25,9 +25,9 @@ html(lang="en")
           $.post('createpoll', 
             {choices: $('#pollOptions').tagsinput('items'), emails: $('#respondentEmails').tagsinput('items')},
             function(){
-            alert("success");
-          })
-          .fail(function(){
+              alert("success");
+            }
+          ).fail(function(){
             alert("failure");
           })
         });

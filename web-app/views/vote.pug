@@ -17,10 +17,18 @@ html(lang="en")
         var ballotElt = Sortable.create(document.getElementById('ballot'));
 
         $('#submitBallot').click(function(){
-          console.log(ballotElt.toArray().map(function(elt){
-            return parseInt(elt);
-          }));
-        })
+          $.post(
+            window.location.href, 
+            {order: ballotElt.toArray().map(function(elt){ return parseInt(elt); })},
+            function(){
+              alert("success");
+            }
+          ).fail(function(){
+              alert("failure");
+            }
+          );
+        });
+
       });
     
 

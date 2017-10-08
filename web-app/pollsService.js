@@ -92,13 +92,13 @@ PollsService = function(){
             return connection.beginTransaction();
         })
         .then(function(){
-            return connection.query('INSERT INTO poll set ?', {name: name});
+            return connection.query('insert into poll set ?', {name: name});
         }).then(function(results){
             let choicesPromises = [];
             pollId = results.insertId;
             choices.forEach(function(element, index){
                 choicesPromises.push(
-                    connection.query('INSERT INTO poll_option set ?', {poll_id: pollId, id: index, name: element, })
+                    connection.query('insert into poll_option set ?', {poll_id: pollId, id: index, name: element, })
                 );
             });
             return Promise.all(choicesPromises);
@@ -143,15 +143,31 @@ PollsService = function(){
         
     }
 
-    function upsertBallot(pollId, email){
+    this.upsertBallot = function(id, order){
         var poll;
         var connection;
         return connPromise.then(function(conn){
             connection = conn;
-            return connection.query('INSERT INTO ballot SET ?', {poll_id: pollId, email: email});
-        }).then(function(results){
-            ballotId = results.insertId;
-            return Promise.resolve(ballotId);
+            return connection.beginTransaction();
+        }).then(function(){
+            return connection.query('delete from `ballot_choice` where `ballot_id` = ?', [id]);
+        }).then(function(){
+            let ballotPromises = [];
+            order.forEach(function(element, index){
+                ballotPromises.push(
+                    connection.query('insert into `ballot_choice` set ?', {ballot_id: id, poll_option_id: element, priority: index })
+                );
+            });
+            return Promise.all(ballotPromises);
+        }).then(function(){
+            return connection.commit();
+        }).then(function(){
+            return Promise.resolve();
+        }, function(reason){
+            return connection.rollback()
+            .then(function(){
+                return Promise.reject(reason);
+            });
         });
     }
 
