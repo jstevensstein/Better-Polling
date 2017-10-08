@@ -17,6 +17,7 @@
     "node-mailjet": "^3.2.1",
     "path": "^0.12.7",
     "promise-mysql": "^3.1.0",
-    "sortablejs": "^1.6.1"
+    "pug": "^2.0.0-rc.4",
+    "vendor": "^1.7.0"
   }
 }

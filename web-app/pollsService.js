@@ -16,78 +16,45 @@ PollsService = function(){
         database:   'pollingdb'
     });
 
-
-    this.createPoll = function(name, choices){
-
-        return connPromise.then(function(conn){
-            var connection = conn;
-            var pollId;
-            return connection.beginTransaction()
-            .then(function(){
-                return connection.query('INSERT INTO poll set ?', {name: name});
-            }).then(function(results){
-                let choicesPromises = [];
-                pollId = results.insertId;
-                choices.forEach(function(element, index){
-                    choicesPromises.push(
-                        connection.query('INSERT INTO poll_option set ?', {poll_id: pollId, id: index, name: element, })
-                    );
-                });
-                return Promise.all(choicesPromises);
-            }).then(values => {
-                return connection.commit();
-            }).then(values =>{
-                return Promise.resolve(pollId);
-            }, reason =>{
-                return connection.rollback()
-                .then(function(){
-                    return Promise.reject(reason);
-                });
-            });
-        });
+    this.validateBallotToken = function(ballotId, token){
+        return token == generateBallotToken(ballotId);
     }
 
-    this.validateBallotToken = function(pollId, email, token){
-        return token == generateBallotToken(pollId, email);
+    function generateBallotToken(ballotId){
+        return sha3_512(ballotId + Secret);
     }
 
-    function generateBallotToken(pollId, email){
-        return sha3_512(pollId + email + Secret);
+    function generateBallotUrl(ballotId){
+        return 'http://localhost:3000/ballot/' + ballotId +'?token=' + generateBallotToken(ballotId);
     }
 
-    function generateBallotUrl(pollId, email){
-        return 'http://localhost:3000/vote/poll/'+pollId+/email/+email+'?token=' + generateBallotToken(pollId, email);
-    }
-
-    this.sendEmailsForPoll = function(pollId, emails){
+    function sendEmailForBallot(ballotId, email){
         //use email as salt; this and the secret will provide enough security for our purposes
         
-        emails.forEach(function(email){
-            let ballotUrl = generateBallotUrl(pollId, email);
-            var options = {
-                'Recipients': [{ Email: email }],
-                'FromEmail': SenderAddress,
-                // Subject
-                'Subject': 'You have been invited to participate in a Better Poll!',
-                // Body
-                'Text-part': 'Please vote at '  + ballotUrl,
-                'Html-part': '<h3>Please vote <a href="' + ballotUrl +'">here</a></h3>'
-            };
+        let ballotUrl = generateBallotUrl(ballotId);
+        var options = {
+            'Recipients': [{ Email: email }],
+            'FromEmail': SenderAddress,
+            // Subject
+            'Subject': 'You have been invited to participate in a Better Poll!',
+            // Body
+            'Text-part': 'Please vote at '  + ballotUrl,
+            'Html-part': '<h3>Please vote <a href="' + ballotUrl +'">here</a></h3>'
+        };
 
-            var sendEmail = Mailjet.post('send');
+        var sendEmail = Mailjet.post('send');
 
-            sendEmail.request(options)
-                .then(function(response, body){
-                    //console.log(response);
-                })
-                .catch(function(reason){
-                    //console.log(reason);
-                });
+        sendEmail.request(options)
+            .then(function(response, body){
+                //console.log(response);
+            })
+            .catch(function(reason){
+                //console.log(reason);
+            });
 
-        })
     }
 
-    this.getPollById = function(id){
+    function getPollById(id){
         var poll;
         var connection;
         return connPromise.then(function(conn){
@@ -108,9 +75,100 @@ PollsService = function(){
                     options.push({id: element.id, name: element.name});
                 });
                 poll.options = options;
-                return Promise.resolve(poll);
+                return poll;
             }
             return Promise.reject('There are no options for this poll')
+        });
+    }
+
+    this.getPollById = getPollById;
+
+
+    function createPoll(name, choices){
+        var connection;
+        return connPromise.then(function(conn){
+            connection = conn;
+            var pollId;
+            return connection.beginTransaction();
+        })
+        .then(function(){
+            return connection.query('INSERT INTO poll set ?', {name: name});
+        }).then(function(results){
+            let choicesPromises = [];
+            pollId = results.insertId;
+            choices.forEach(function(element, index){
+                choicesPromises.push(
+                    connection.query('INSERT INTO poll_option set ?', {poll_id: pollId, id: index, name: element, })
+                );
+            });
+            return Promise.all(choicesPromises);
+        }).then(values => {
+            return connection.commit();
+        }).then(values =>{
+            return Promise.resolve(pollId);
+        }, reason =>{
+            return connection.rollback()
+            .then(function(){
+                return Promise.reject(reason);
+            });
+        });
+    }
+
+
+
+    this.getBallotById = function(id){
+        var connection;
+        var ballot = {
+            complete: false
+        };
+        return connPromise.then(function(conn){
+            connection = conn;
+            return connection.beginTransaction();
+        }).then(function(){
+            return connection.query('select * from `ballot` where `id` = ?', [id]);
+        }).then(function(rows){
+            let record = rows[0];
+            ballot.complete = !!record.complete;
+            if (ballot.complete){
+                
+            }
+            else{
+                return getPollById(record.poll_id).then(function(poll){
+                    ballot.options = poll.options;
+                    return ballot;
+                })
+
+            }
+        });
+        
+    }
+
+    function upsertBallot(pollId, email){
+        var poll;
+        var connection;
+        return connPromise.then(function(conn){
+            connection = conn;
+            return connection.query('INSERT INTO ballot SET ?', {poll_id: pollId, email: email});
+        }).then(function(results){
+            ballotId = results.insertId;
+            return Promise.resolve(ballotId);
+        });
+    }
+
+    this.createPollAndBallotsAndSendEmails = function(choices, emails){
+        return createPoll('name', choices)
+        .then(function(id){
+            pollId = id;
+            var ballotPromises = [];
+            emails.forEach(function(email){
+                ballotPromises.push(
+                    upsertBallot(id, email)
+                    .then(function(ballotId){
+                        sendEmailForBallot(ballotId, email);
+                    })
+                );
+            });
+            return Promise.all(ballotPromises);
         });
     }
 }
