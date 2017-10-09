@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "caritat": "0.0.4",
     "dotenv": "^4.0.0",
     "express": "^4.15.4",
     "js-sha3": "^0.6.1",
