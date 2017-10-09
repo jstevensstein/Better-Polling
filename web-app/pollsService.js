@@ -105,7 +105,7 @@ PollsService = function(){
         }).then(values => {
             return connection.commit();
         }).then(values =>{
-            return Promise.resolve(pollId);
+            return pollId;
         }, reason =>{
             return connection.rollback()
             .then(function(){
@@ -129,21 +129,63 @@ PollsService = function(){
         }).then(function(rows){
             let record = rows[0];
             ballot.complete = !!record.complete;
+            ballot.pollId = record.poll_id;
             if (ballot.complete){
-                
+                //get choices in order
             }
-            else{
+//            else{
                 return getPollById(record.poll_id).then(function(poll){
                     ballot.options = poll.options;
                     return ballot;
                 })
 
-            }
+//            }
         });
-        
     }
 
-    this.upsertBallot = function(id, order){
+    function getBallotsForPoll(pollId){
+        var connection;
+        return connPromise.then(function(conn){
+            connection = conn;
+            return connection.query('select * from `ballot` where `poll_id` = ?', [pollId]);
+        })
+        .then(function(rows){
+            var ballots = [];
+            rows.forEach(function(row){
+                ballots.push({
+                    pollId: row.poll_id,
+                    id: row.id,
+                    email: row.email,
+                    complete: !!row.complete
+                });
+            });
+            return ballots;
+        });
+    }
+
+    function allBallotsComplete(pollId){
+        return getBallotsForPoll(pollId)
+        .then(function(ballots){
+            return !ballots.some(function(ballot){return !ballot.complete;});
+        });
+    }
+
+    function upsertBallot(pollId, email){
+        var poll;
+        var connection;
+        return connPromise.then(function(conn){
+            connection = conn;
+            return connection.query('INSERT INTO ballot SET ?', {poll_id: pollId, email: email});
+        }).then(function(results){
+            ballotId = results.insertId;
+            return Promise.resolve(ballotId);
+        });
+    }
+
+    this.upsertBallot = upsertBallot;
+
+
+    this.upsertBallotChoices = function(id, order){
         var poll;
         var connection;
         return connPromise.then(function(conn){
@@ -159,6 +201,8 @@ PollsService = function(){
                 );
             });
             return Promise.all(ballotPromises);
+        }).then(function(){
+            return connection.query('update `ballot` set complete = true where `id` = ?', [id]);
         }).then(function(){
             return connection.commit();
         }).then(function(){
@@ -185,6 +229,19 @@ PollsService = function(){
                 );
             });
             return Promise.all(ballotPromises);
+        });
+    }
+
+    this.determineWinnerAndSendEmailIfBallotsComplete = function(pollId){
+        allBallotsComplete(pollId)
+        .then(function(complete){
+            if (complete){
+                console.log('Calculating the winner and sending results because all ballots are complete');
+                //send emails
+            }
+            else{
+                console.log('There are incomplete ballots!')
+            }
         });
     }
 }

@@ -49,9 +49,14 @@ app.post('/ballot/:id/', urlencodedParser, function(req, res){
   var token = req.query.token;
   if (PollsService.validateBallotToken(id, token)) {
     var order = req.body.order;
-    PollsService.upsertBallot(id, order)
+    PollsService.upsertBallotChoices(id, order)
     .then(function(){
       res.status(200).json(null);
+      PollsService.getBallotById(id)
+      .then(function(ballot){
+        debugger;
+        PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
+      })
     }, function(reason){
       console.log(reason);
       res.status(500).send(null);
