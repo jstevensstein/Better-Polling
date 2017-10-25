@@ -1,20 +1,17 @@
-var mysql = require('promise-mysql');
+'use strict'
+
+
 var sha3_512 = require('js-sha3').sha3_512;
+var pollsRepo = require('./dataAccess/pollsRepository.js')
+//var caritat = require('caritat');
 var Mailjet = require('node-mailjet').connect(
   process.env.MJ_APIKEY_PUBLIC,
   process.env.MJ_APIKEY_PRIVATE
 );
 
-PollsService = function(){
+function PollsService(){
     var SenderAddress = process.env.MJ_SENDER_ADDRESS;
     var Secret = process.env.SECRET;
-
-    let connPromise = mysql.createConnection({
-        host:       process.env.MYSQL_HOST,
-        user:       process.env.MYSQL_USER,
-        password:   process.env.MYSQL_PASSWORD,
-        database:   'pollingdb'
-    });
 
     this.validateBallotToken = function(ballotId, token){
         return token == generateBallotToken(ballotId);
@@ -54,175 +51,14 @@ PollsService = function(){
 
     }
 
-    function getPollById(id){
-        var poll;
-        var connection;
-        return connPromise.then(function(conn){
-            connection = conn;
-            return connection.query('select * from `poll` where `id` = ?', [id]);
-        })
-        .then(function(rows){
-            poll = rows[0];
-            if (poll){
-                return connection.query('select * from `poll_option` where `poll_id` = ?', [id]);
-            }
-            return Promise.reject('There is no such poll');
-        })
-        .then(function(rows){
-            if (rows){
-                options = [];
-                rows.forEach(function(element){
-                    options.push({id: element.id, name: element.name});
-                });
-                poll.options = options;
-                return poll;
-            }
-            return Promise.reject('There are no options for this poll')
-        });
-    }
-
-    this.getPollById = getPollById;
-
-
-    function createPoll(name, choices){
-        var connection;
-        return connPromise.then(function(conn){
-            connection = conn;
-            var pollId;
-            return connection.beginTransaction();
-        })
-        .then(function(){
-            return connection.query('insert into poll set ?', {name: name});
-        }).then(function(results){
-            let choicesPromises = [];
-            pollId = results.insertId;
-            choices.forEach(function(element, index){
-                choicesPromises.push(
-                    connection.query('insert into poll_option set ?', {poll_id: pollId, id: index, name: element, })
-                );
-            });
-            return Promise.all(choicesPromises);
-        }).then(values => {
-            return connection.commit();
-        }).then(values =>{
-            return pollId;
-        }, reason =>{
-            return connection.rollback()
-            .then(function(){
-                return Promise.reject(reason);
-            });
-        });
-    }
-
-
-
-    this.getBallotById = function(id){
-        var connection;
-        var ballot = {
-            complete: false
-        };
-        return connPromise.then(function(conn){
-            connection = conn;
-            return connection.beginTransaction();
-        }).then(function(){
-            return connection.query('select * from `ballot` where `id` = ?', [id]);
-        }).then(function(rows){
-            let record = rows[0];
-            ballot.complete = !!record.complete;
-            ballot.pollId = record.poll_id;
-            if (ballot.complete){
-                //get choices in order
-            }
-//            else{
-                return getPollById(record.poll_id).then(function(poll){
-                    ballot.options = poll.options;
-                    return ballot;
-                })
-
-//            }
-        });
-    }
-
-    function getBallotsForPoll(pollId){
-        var connection;
-        return connPromise.then(function(conn){
-            connection = conn;
-            return connection.query('select * from `ballot` where `poll_id` = ?', [pollId]);
-        })
-        .then(function(rows){
-            var ballots = [];
-            rows.forEach(function(row){
-                ballots.push({
-                    pollId: row.poll_id,
-                    id: row.id,
-                    email: row.email,
-                    complete: !!row.complete
-                });
-            });
-            return ballots;
-        });
-    }
-
-    function allBallotsComplete(pollId){
-        return getBallotsForPoll(pollId)
-        .then(function(ballots){
-            return !ballots.some(function(ballot){return !ballot.complete;});
-        });
-    }
-
-    function upsertBallot(pollId, email){
-        var poll;
-        var connection;
-        return connPromise.then(function(conn){
-            connection = conn;
-            return connection.query('INSERT INTO ballot SET ?', {poll_id: pollId, email: email});
-        }).then(function(results){
-            ballotId = results.insertId;
-            return Promise.resolve(ballotId);
-        });
-    }
-
-    this.upsertBallot = upsertBallot;
-
-
-    this.upsertBallotChoices = function(id, order){
-        var poll;
-        var connection;
-        return connPromise.then(function(conn){
-            connection = conn;
-            return connection.beginTransaction();
-        }).then(function(){
-            return connection.query('delete from `ballot_choice` where `ballot_id` = ?', [id]);
-        }).then(function(){
-            let ballotPromises = [];
-            order.forEach(function(element, index){
-                ballotPromises.push(
-                    connection.query('insert into `ballot_choice` set ?', {ballot_id: id, poll_option_id: element, priority: index })
-                );
-            });
-            return Promise.all(ballotPromises);
-        }).then(function(){
-            return connection.query('update `ballot` set complete = true where `id` = ?', [id]);
-        }).then(function(){
-            return connection.commit();
-        }).then(function(){
-            return Promise.resolve();
-        }, function(reason){
-            return connection.rollback()
-            .then(function(){
-                return Promise.reject(reason);
-            });
-        });
-    }
-
     this.createPollAndBallotsAndSendEmails = function(choices, emails){
-        return createPoll('name', choices)
+        return pollsRepo.createPoll('name', choices)
         .then(function(id){
-            pollId = id;
-            var ballotPromises = [];
+            let pollId = id;
+            let ballotPromises = [];
             emails.forEach(function(email){
                 ballotPromises.push(
-                    upsertBallot(id, email)
+                    pollsRepo.addBallot(id, email)
                     .then(function(ballotId){
                         sendEmailForBallot(ballotId, email);
                     })
@@ -233,7 +69,7 @@ PollsService = function(){
     }
 
     this.determineWinnerAndSendEmailIfBallotsComplete = function(pollId){
-        allBallotsComplete(pollId)
+        pollsRepo.allBallotsComplete(pollId)
         .then(function(complete){
             if (complete){
                 console.log('Calculating the winner and sending results because all ballots are complete');

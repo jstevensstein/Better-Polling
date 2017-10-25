@@ -36,7 +36,7 @@ html(lang="en")
   body
     h1 Ballot
     ul.list-group#ballot
-      each item in ballot.options
+      each item in ballot.choices
         li(data-id=item.id).list-group-item= item.name
     br
     button#submitBallot(

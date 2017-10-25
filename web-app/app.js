@@ -1,9 +1,12 @@
+'use strict'
+
 require('dotenv').config()
 var express = require('express');
 var bodyParser = require('body-parser')
 var path = require('path');
 
 var PollsService = require('./pollsService.js');
+var pollsRepo = require('./dataAccess/pollsRepository.js');
 
 var app = express();
 var urlencodedParser = bodyParser.urlencoded({ extended: true })
@@ -32,8 +35,11 @@ app.get('/ballot/:id', function(req, res){
   var email = req.params.email;
   var token = req.query.token;
   if (PollsService.validateBallotToken(id, token)){
-    PollsService.getBallotById(id).then(function(ballot){
-      res.render("vote", {ballot: ballot});
+    pollsRepo.getBallotById(id).then(function(ballot){
+      return ballot.toModel();
+    })
+    .then(function(ballotModel){
+      res.render("vote", {ballot: ballotModel});
     },
     function(reason){
       res.status(500).send(reason);
@@ -49,12 +55,11 @@ app.post('/ballot/:id/', urlencodedParser, function(req, res){
   var token = req.query.token;
   if (PollsService.validateBallotToken(id, token)) {
     var order = req.body.order;
-    PollsService.upsertBallotChoices(id, order)
+    pollsRepo.submitBallot(id, order)
     .then(function(){
       res.status(200).json(null);
-      PollsService.getBallotById(id)
+      pollsRepo.getBallotById(id)
       .then(function(ballot){
-        debugger;
         PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
       })
     }, function(reason){
