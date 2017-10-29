@@ -80,7 +80,7 @@ function PollsRepository(){
         });
     }
 
-    function getBallotsForPoll(pollId){
+    this.getBallotsForPoll = function(pollId){
         return pool.query('select * from `ballot` where `poll_id` = ?', [pollId])
         .then(function(rows){
             var ballots = [];
@@ -92,7 +92,7 @@ function PollsRepository(){
     }
 
     this.allBallotsComplete = function(pollId){
-        return getBallotsForPoll(pollId)
+        return this.getBallotsForPoll(pollId)
         .then(function(ballots){
             return !ballots.some(function(ballot){return !ballot.complete;});
         });
@@ -142,6 +142,17 @@ function PollsRepository(){
                 );
             });
             return Promise.all(ballotPromises);
+        });
+    }
+
+    this.getBallotChoices = function(id){
+        return pool.query('select * from `ballot_choice` where `ballot_id` = ? order by priority', [id])
+        .then(function(rows){
+            let choices = [];
+            rows.forEach(function(row){
+                choices.push(row.poll_option_id);
+            });
+            return choices;
         });
     }
 }

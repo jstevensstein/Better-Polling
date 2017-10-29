@@ -3,6 +3,7 @@
 
 var sha3_512 = require('js-sha3').sha3_512;
 var pollsRepo = require('./dataAccess/pollsRepository.js')
+var caritat = require('caritat');
 //var caritat = require('caritat');
 var Mailjet = require('node-mailjet').connect(
   process.env.MJ_APIKEY_PUBLIC,
@@ -69,15 +70,28 @@ function PollsService(){
     }
 
     this.determineWinnerAndSendEmailIfBallotsComplete = function(pollId){
-        pollsRepo.allBallotsComplete(pollId)
-        .then(function(complete){
-            if (complete){
-                console.log('Calculating the winner and sending results because all ballots are complete');
-                //send emails
-            }
-            else{
+        return pollsRepo.getBallotsForPoll(pollId)
+        .then(function(ballots){
+            if (ballots.some(function(ballot){return !ballot.complete;})){
                 console.log('There are incomplete ballots!')
+                return;
             }
+            console.log('Calculating the winner and sending results because all ballots are complete');
+            return Promise.all(ballots.map(b => b.choices))
+            .then(function(ballotsChoices){
+                var candidates = [];
+                for (let i = 0; i<ballotsChoices[0].length; i++){
+                    candidates.push(i.toString());
+                }
+                var election = new caritat.Election({
+                  candidates: candidates
+                });
+                ballotsChoices.forEach(function(choices){
+                    election.addBallot(choices.map(c => c.toString()));
+                });
+                var winner = caritat.irv(election);
+                console.log('The winner is ' + winner);
+            });
         });
     }
 }
