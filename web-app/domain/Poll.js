@@ -1,14 +1,16 @@
-var PollsService = require('../pollsService.js');
+var pollsRepo = require('../dataAccess/pollsRepository.js')
 
 class Poll{
-    costructor(id, name){
+    constructor(id, name, owner, closed){
         this.id = id;
         this.name = name;
+        this.owner = owner;
+        this.closed = closed;
         this.options_ = undefined;
     }
 
     get options(){
-        return PollsService.getPollOptions(this.id)
+        return pollsRepo.getPollOptions(this.id).bind(this)
         .then(function(options){
             this.options_ = options;
             return this.options_;

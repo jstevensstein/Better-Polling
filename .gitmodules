@@ -1,3 +1,6 @@
 [submodule "web-app/vendor/bootstrap-tagsinput"]
 	path = web-app/vendor/bootstrap-tagsinput
 	url = https://github.com/bootstrap-tagsinput/bootstrap-tagsinput.git
+[submodule "web-app/vendor/bootstrap4-tagsinput"]
+	path = web-app/vendor/bootstrap4-tagsinput
+	url = https://github.com/Nodws/bootstrap4-tagsinput.git

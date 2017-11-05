@@ -52,14 +52,14 @@ function PollsService(){
 
     }
 
-    this.createPollAndBallotsAndSendEmails = function(choices, emails){
-        return pollsRepo.createPoll('name', choices)
+    this.createPollAndBallotsAndSendEmails = function(name, owner, choices, emails){
+        return pollsRepo.createPoll(name, owner, choices)
         .then(function(id){
             let pollId = id;
             let ballotPromises = [];
             emails.forEach(function(email){
                 ballotPromises.push(
-                    pollsRepo.addBallot(id, email)
+                    pollsRepo.addBallot(pollId, email)
                     .then(function(ballotId){
                         sendEmailForBallot(ballotId, email);
                     })
@@ -69,9 +69,44 @@ function PollsService(){
         });
     }
 
+    function sendWinnerEmail(winnerName, email){
+        var options = {
+            'Recipients': [{ Email: email }],
+            'FromEmail': SenderAddress,
+            // Subject
+            'Subject': 'Results Are In!',
+            // Body
+            'Text-part': 'The winner of your Better Poll is ' + winnerName + '!'
+        };
+
+        var sendEmail = Mailjet.post('send');
+
+        sendEmail.request(options)
+            .then(function(response, body){
+                //console.log(response);
+            })
+            .catch(function(reason){
+                //console.log(reason);
+            });
+
+    }
+
+    function sendWinnerEmails(winnerName, emails){
+        emails.forEach(function(email){
+            sendWinnerEmail(winnerName, email);
+        });
+    }
+
     this.determineWinnerAndSendEmailIfBallotsComplete = function(pollId){
-        return pollsRepo.getBallotsForPoll(pollId)
-        .then(function(ballots){
+        var poll;
+        var winnerId;
+        var winnerOption;
+        var ballots;
+        return pollsRepo.getPollById(pollId).then(function(p){
+            poll = p;
+            return pollsRepo.getBallotsForPoll(pollId)
+        }).then(function(b){
+            ballots = b;
             if (ballots.some(function(ballot){return !ballot.complete;})){
                 console.log('There are incomplete ballots!')
                 return;
@@ -79,18 +114,30 @@ function PollsService(){
             console.log('Calculating the winner and sending results because all ballots are complete');
             return Promise.all(ballots.map(b => b.choices))
             .then(function(ballotsChoices){
-                var candidates = [];
+                let candidates = [];
                 for (let i = 0; i<ballotsChoices[0].length; i++){
                     candidates.push(i.toString());
                 }
-                var election = new caritat.Election({
+                let election = new caritat.Election({
                   candidates: candidates
                 });
                 ballotsChoices.forEach(function(choices){
                     election.addBallot(choices.map(c => c.toString()));
                 });
-                var winner = caritat.irv(election);
-                console.log('The winner is ' + winner);
+                let winner = caritat.condorcet.winner(election);
+                if (winner){
+                    winnerId = parseInt(winner);
+                }
+                else{
+                    winnerId = parseInt(caritat.irv(election));
+                }
+                return pollsRepo.updatePoll(poll.id, {closed: 1, winner: winnerId});
+            }).then(function(){
+                return poll.options;
+            }).then(function(options){
+                winnerOption = options.find(function(elt){return elt.id == winnerId});
+                console.log('The winner is ' + winnerOption.name);
+                sendWinnerEmails(winnerOption.name, ballots.map(function(b){return b.email;}));
             });
         });
     }

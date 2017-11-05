@@ -21,12 +21,13 @@ app.get('/', function(req, res) {
 });
 
 app.post('/createpoll', urlencodedParser, function(req, res){
-  PollsService.createPollAndBallotsAndSendEmails(req.body.choices, req.body.emails)
-  .then(function(){
-    res.status(200).json(null);
+  PollsService.createPollAndBallotsAndSendEmails(
+    req.body.name, req.body.owner, req.body.choices, req.body.emails
+  ).then(function(){
+    res.status(200).end();
   }, function(reason){
     console.log(reason);
-    res.status(500).send(null);
+    res.status(500).json({error: "There was an error creating your poll."});
   });
 });
 
@@ -42,11 +43,13 @@ app.get('/ballot/:id', function(req, res){
       res.render("vote", {ballot: ballotModel});
     },
     function(reason){
-      res.status(500).send(reason);
+      //TODO: unauthorized view
+      res.status(500).end();
     });
   }
   else{
-    res.status(403).send(null);
+    //TODO: unexpected error view
+    res.status(403).json({status:"error", message: "You are not authorized to view this poll."});
   }
 });
 
@@ -57,18 +60,18 @@ app.post('/ballot/:id/', urlencodedParser, function(req, res){
     var order = req.body.order;
     pollsRepo.submitBallot(id, order)
     .then(function(){
-      res.status(200).json(null);
+      res.status(200).end();
       pollsRepo.getBallotById(id)
       .then(function(ballot){
         PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
       })
     }, function(reason){
       console.log(reason);
-      res.status(500).send(null);
+      res.status(500).end();
     })
   }
   else{
-    res.status(403).send(null);
+    res.status(403).json({status:"error", message: "You are not authorized to submit this ballot."});
   }
 });
 

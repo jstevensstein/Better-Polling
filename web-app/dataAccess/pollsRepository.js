@@ -27,8 +27,7 @@ function PollsRepository(){
             if (!pollRow){
                 return Promise.reject('There is no such poll');
             }
-            poll = new domain.Poll(pollRow.id, pollRow.name);
-            return poll;
+            return new domain.Poll(pollRow.id, pollRow.name, pollRow.owner, !!pollRow.closed);
         });
     }
 
@@ -44,12 +43,12 @@ function PollsRepository(){
     }
 
 
-    this.createPoll = function(name, choices){
+    this.createPoll = function(name, ownerEmail, choices){
         return Promise.using(getConnection(), function(connection) {
             var pollId;
             return connection.beginTransaction()
             .then(function(){
-                return connection.query('insert into poll set ?', {name: name});
+                return connection.query('insert into poll set ?', {name: name, owner_email: ownerEmail});
             }).then(function(results){
                 let choicesPromises = [];
                 pollId = results.insertId;
@@ -70,6 +69,10 @@ function PollsRepository(){
                 });
             });
         });
+    }
+
+    this.updatePoll = function(id, updates, connection){
+        return pool.query('update poll set ? where `id` = ?', [updates, id]);
     }
 
     this.getBallotById = function(id){
@@ -109,7 +112,7 @@ function PollsRepository(){
         return Promise.using(getConnection(), function(connection) {
             return connection.beginTransaction()
             .then(function(){
-                return upsertBallot(id, {complete: 1}, connection);
+                return updateBallot(id, {complete: 1}, connection);
             })
             .then(function(){
                 return upsertBallotChoices(id, order, connection);
@@ -127,7 +130,7 @@ function PollsRepository(){
     }
 
     //TODO: same function w/out connection yet and commits?
-    function upsertBallot(id, updates, connection){
+    function updateBallot(id, updates, connection){
         return connection.query('update ballot set ? where `id` = ?', [updates, id]);
     }
 

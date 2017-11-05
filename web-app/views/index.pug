@@ -2,11 +2,20 @@ doctype html
 html(lang="en")
   head
     title= pageTitle
-    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u',  crossorigin='anonymous')
-    link(rel='stylesheet', href='/vendor/bootstrap-tagsinput/src/bootstrap-tagsinput.css')
+    link(rel="stylesheet", href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css', integrity='sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb', crossorigin='anonymous')
+    
+    meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+
+    link(rel='stylesheet', href='/vendor/bootstrap4-tagsinput/tagsinput.css')
+
     script(src='https://code.jquery.com/jquery-3.2.1.min.js', integrity='sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=', crossorigin='anonymous')
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', integrity='sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa', crossorigin='anonymous')
-    script(src='/vendor/bootstrap-tagsinput/src/bootstrap-tagsinput.js')
+
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js', integrity='sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh', crossorigin='anonymous')
+
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js', integrity='sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ', crossorigin='anonymous')
+
+    script(src='/vendor/bootstrap4-tagsinput/tagsinput.js')
+
     script(type='text/javascript').
       $(function(){
         function initializeTagsInput(){
@@ -23,9 +32,19 @@ html(lang="en")
 
         $('#submitPoll').click(function(){
           $.post('createpoll', 
-            {choices: $('#pollOptions').tagsinput('items'), emails: $('#respondentEmails').tagsinput('items')},
-            function(){
-              alert("success");
+            {
+              name: $('#pollName').val(),
+              choices: $('#pollOptions').tagsinput('items'),
+              emails: $('#respondentEmails').tagsinput('items'),
+              owner: $('#ownerEmail').val()
+            },
+            function(data){
+              if (data.error){
+                alert("error");
+              }
+              else{
+                alert("success");
+              }
             }
           ).fail(function(){
             alert("failure");
@@ -34,24 +53,46 @@ html(lang="en")
       });
 
   body
-    h1 Better Polling
-    h3 Create a list of options below
-    div
-      input#pollOptions(
-        type='text'
-      )
+    div.container
+      div.row
+        div.col-md-8.col-lg-6(style='margin:auto;')
+          h1 Better Polling
 
-    h3 Enter respondent emails below
-    div
-      input#respondentEmails(
-        type='text'
-        data-role='tagsinput'
-      )
+          form
 
-    br
+            div.form-group
+              label(for='pollName').
+                Poll Name
+              input#pollName.form-control(
+                type='text'
+              )
 
-    button#submitPoll(
-      type='button'
-      class='btn btn-primary'
-    ).
-      Submit
+            div.form-group
+              label(for='pollOptions').
+                Create a list of options below
+              input#pollOptions.form-control(
+                type='text'
+              )
+
+            div.form-group
+              label(for='respondentEmails').
+                Enter respondent emails below
+              input#respondentEmails.form-control(
+                type='email'
+                data-role='tagsinput'
+              )
+
+            div.form-group
+              label(for='ownerEmail').
+                Provide your email below
+              input#ownerEmail.form-control(
+                type='email'
+              )
+            br
+
+            button#submitPoll(
+              type='button'
+              class='btn btn-primary'
+              style='display:flex;margin:auto;'
+            ).
+              Submit

@@ -9,11 +9,23 @@ class Ballot{
         this.email = email;
         this.choices_ = undefined;
         this.options_ = undefined;
+        this.poll_ = undefined;
+    }
+
+    get poll(){
+        if (this.poll_){
+            return Promise.resolve(this.poll_);
+        }
+        return pollsRepo.getPollById(this.pollId).bind(this)
+        .then(function(poll){
+            this.poll_ = poll;
+            return this.poll_;
+        });
     }
 
     get options(){
         if (this.options_){
-            Promise.resolve(this.options_)
+            return Promise.resolve(this.options_)
         }
         return pollsRepo.getPollOptions(this.pollId).bind(this)
         .then(function(options){
@@ -56,12 +68,15 @@ class Ballot{
     }
 
     toModel(){
-        return this.optionsByChoiceOrRandom.then(function(options){
+        return this.poll.then(function(){
+            return this.optionsByChoiceOrRandom;
+        }).then(function(options){
             return {
                 id: this.id,
                 pollId: this.pollId,
-                name: this.name,
-                options: options
+                pollName: this.poll_.name,
+                options: options,
+                closed: this.poll_.closed
             }
         });
     }
