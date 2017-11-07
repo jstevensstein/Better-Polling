@@ -11,6 +11,8 @@ var pollsRepo = require('./dataAccess/pollsRepository.js');
 var app = express();
 var urlencodedParser = bodyParser.urlencoded({ extended: true })
 
+var genericErrorMessage = 'An enexpected error occurred';
+
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 app.use("/vendor", express.static(path.join(__dirname, "vendor")));
@@ -24,10 +26,10 @@ app.post('/createpoll', urlencodedParser, function(req, res){
   PollsService.createPollAndBallotsAndSendEmails(
     req.body.name, req.body.owner, req.body.choices, req.body.emails
   ).then(function(){
-    res.status(200).end();
+    res.end()
   }, function(reason){
     console.log(reason);
-    res.status(500).json({error: "There was an error creating your poll."});
+    res.json({error: genericErrorMessage});
   });
 });
 
@@ -43,13 +45,13 @@ app.get('/ballot/:id', function(req, res){
       res.render("vote", {ballot: ballotModel});
     },
     function(reason){
-      //TODO: unauthorized view
-      res.status(500).end();
+      //TODO: unexpected error view
+      res.json({error: {message: genericErrorMessage}})
     });
   }
   else{
-    //TODO: unexpected error view
-    res.status(403).json({status:"error", message: "You are not authorized to view this poll."});
+    //TODO: unauthorized view
+    res.json({error: {message: "You are not authorized to view this poll."}});
   }
 });
 
@@ -60,18 +62,18 @@ app.post('/ballot/:id/', urlencodedParser, function(req, res){
     var order = req.body.order;
     pollsRepo.submitBallot(id, order)
     .then(function(){
-      res.status(200).end();
+      res.end();
       pollsRepo.getBallotById(id)
       .then(function(ballot){
         PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
       })
     }, function(reason){
       console.log(reason);
-      res.status(500).end();
+      res.json({error: {message: genericErrorMessage}})
     })
   }
   else{
-    res.status(403).json({status:"error", message: "You are not authorized to submit this ballot."});
+    res.json({error: {message: "You are not authorized to submit this ballot."}});
   }
 });
 
