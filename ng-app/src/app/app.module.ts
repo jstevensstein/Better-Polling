@@ -5,11 +5,13 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule, MatIconModule, MatIconRegistry} from '@angular/material';
 import {HttpClientModule} from '@angular/common/http';
 import { AppComponent } from './app.component';
+import { BuildOptionsComponent } from './build-options.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    BuildOptionsComponent
   ],
   imports: [
     BrowserModule,
@@ -20,7 +22,7 @@ import { AppComponent } from './app.component';
     MatToolbarModule,
     FormsModule,
     MatIconModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [
     MatIconRegistry

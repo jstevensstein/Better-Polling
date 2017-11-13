@@ -1,4 +1,3 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <mat-toolbar>
   <span>Better Polling</span>
 </mat-toolbar>
@@ -9,15 +8,6 @@
   <mat-form-field class="example-full-width">
     <input matInput type="text" placeholder="Poll Title" style="width:100%;">
   </mat-form-field>
-  <div *ngFor="let option of pollOptions; let i=index;">
-      <mat-form-field>
-        <input #foobar matInput type="text" [(ngModel)]="option.value" (blur)="onBlurOption(i)" (keyup.enter)="onEnter(i)" (keyup.backspace)="onDelete(i)">
-      </mat-form-field>
-      <i class="material-icons md-dark" (click)="removeOption(i)" [class.md-inactive]="pollOptions.length < 3">remove_circle</i>
-  </div>
-  <div>
-    <mat-form-field>
-      <input #foobuz matInput type="text" value="Add Option" (focus)="addOptionAtEnd()">
-    </mat-form-field>
-  </div>
+  <build-options [pollOptions]="pollOptions">
+  </build-options>
 </mat-card>

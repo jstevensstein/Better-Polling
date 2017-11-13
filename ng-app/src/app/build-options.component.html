@@ -1,0 +1,11 @@
+<div *ngFor="let option of pollOptions; let i=index;">
+    <mat-form-field>
+      <input #pollOptionsElts matInput type="text" [(ngModel)]="option.value" (blur)="onBlurOption(i)" (keyup.enter)="onEnter(i)" (keyup.backspace)="onDelete(i)">
+    </mat-form-field>
+    <i class="material-icons md-dark" (click)="tryRemoveOption(i)" [class.md-inactive]="pollOptions.length < 3">remove_circle</i>
+</div>
+<div>
+  <mat-form-field>
+    <input matInput type="text" value="Add Option" (focus)="addOptionAtEnd()">
+  </mat-form-field>
+</div>
