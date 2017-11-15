@@ -26,7 +26,7 @@ export class BuildOptionsComponent {
 
   addOption = function(i: number){
     this.pollOptions.splice(i, 0, {value: `Option ${this.pollOptions.length + 1}`});
-    setTimeout(function(){
+    setTimeout(() => {
       this.pollOptionsElts._results[i].nativeElement.select();
     });
   }
@@ -53,7 +53,7 @@ export class BuildOptionsComponent {
 
   removeOption = function(i : number){
     this.pollOptions.splice(i, 1);
-    setTimeout(function(){
+    setTimeout(() => {
       this.pollOptionsElts._results[Math.max(i-1,0)].nativeElement.select();
     });
   }
