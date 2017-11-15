@@ -26,7 +26,9 @@ export class BuildOptionsComponent {
 
   addOption = function(i: number){
     this.pollOptions.splice(i, 0, {value: `Option ${this.pollOptions.length + 1}`});
-    setTimeout(() => this.pollOptionsElts._results[i].nativeElement.select(); );
+    setTimeout(function(){
+      this.pollOptionsElts._results[i].nativeElement.select();
+    });
   }
 
   onEnter = function(i : number){
@@ -51,9 +53,9 @@ export class BuildOptionsComponent {
 
   removeOption = function(i : number){
     this.pollOptions.splice(i, 1);
-    setTimeout(() =>
+    setTimeout(function(){
       this.pollOptionsElts._results[Math.max(i-1,0)].nativeElement.select();
-    );
+    });
   }
 
   onBlurOption = function(i : number){

@@ -27,7 +27,7 @@ emailListValidator =  function(control: AbstractControl) {
 })
 export class AppComponent {
 
-  pollOptions: string[] = [{value:'Option 1'}, {value: 'Option 2'}];
+  pollOptions: {value: string}[] = [{value:'Option 1'}, {value: 'Option 2'}];
 
   emailListFormControl = new FormControl('', [
     Validators.required,
