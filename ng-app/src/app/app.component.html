@@ -5,9 +5,20 @@
   <mat-card-title>
     Build Your Poll
   </mat-card-title>
-  <mat-form-field class="example-full-width">
-    <input matInput type="text" placeholder="Poll Title" style="width:100%;">
-  </mat-form-field>
-  <build-options [pollOptions]="pollOptions">
-  </build-options>
+  <form class="example-form">
+    <mat-form-field class="example-full-width">
+      <input matInput type="text" placeholder="Poll Title" style="width:100%;">
+    </mat-form-field>
+    <build-options [pollOptions]="pollOptions">
+    </build-options>
+    <mat-form-field class="example-full-width">
+      <textarea matInput placeholder="Enter a list of respondent emails" [formControl]="emailListFormControl" [errorStateMatcher]="matcher"></textarea>
+      <mat-error *ngIf="emailListFormControl.hasError('invalidEmails') && !emailListFormControl.hasError('required')">
+        The following are invalid emails: {{emailListFormControl.getError('invalidEmails').emails}}
+      </mat-error>
+      <mat-error *ngIf="emailListFormControl.hasError('required')">
+        Email is <strong>required</strong>
+      </mat-error>
+    </mat-form-field>
+  </form>
 </mat-card>
