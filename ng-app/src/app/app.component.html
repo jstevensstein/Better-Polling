@@ -5,9 +5,12 @@
   <mat-card-title>
     Build Your Poll
   </mat-card-title>
-  <form class="example-form">
+  <form [formGroup]="pollForm" class="example-form" novalidate>
     <mat-form-field class="example-full-width">
-      <input matInput type="text" placeholder="Poll Title">
+      <input matInput type="text" placeholder="Poll Title" [formControl]="titleFormControl" [errorStateMatcher]="titleMatcher">
+      <mat-error *ngIf="titleFormControl.hasError('required')">
+        Please provide a title for your poll
+      </mat-error>
     </mat-form-field>
     <mat-form-field class="example-full-width">
       <input matInput type="text" placeholder="Email" [formControl]="ownerEmailFormControl" [errorStateMatcher]="ownerEmailMatcher">
@@ -15,31 +18,20 @@
         Please enter a valid email address
       </mat-error>
       <mat-error *ngIf="ownerEmailFormControl.hasError('required')">
-        Email is <strong>required</strong>
+        Please provide an email to manage your poll
       </mat-error>
     </mat-form-field>
     <build-options [pollOptions]="pollOptions">
     </build-options>
     <mat-form-field class="example-full-width">
-      <textarea matInput placeholder="Enter a list of respondent emails" [formControl]="emailListFormControl" [errorStateMatcher]="emailListMatcher"></textarea>
+      <textarea matInput matTextareaAutosize matAutosizeMinRows="2" placeholder="Enter a list of voter emails" [formControl]="emailListFormControl" [errorStateMatcher]="emailListMatcher"></textarea>
       <mat-error *ngIf="emailListFormControl.hasError('invalidEmails')">
-        The following are invalid emails:
-        <ul>
-          <ng-template  ngFor let-email [ngForOf]="emailListFormControl.getError('invalidEmails').emails" let-i="index">
-            <li *ngIf="i < 5">
-              {{email}}
-            </li>
-          </ng-template >
-        </ul>
-        <!--
-        <ng-template [ngIf]="emailListFormControl.getError('invalidEmails').emails.length > 5">
-        ...
-        </ng-template>
-        -->
+        The folowing are invalid emails: {{firstInvalidEmails()}}
       </mat-error>
       <mat-error *ngIf="emailListFormControl.hasError('required')">
         You can't create a poll without voters!
       </mat-error>
     </mat-form-field>
+    <button mat-raised-button color="primary">Create Poll</button>
   </form>
 </mat-card>

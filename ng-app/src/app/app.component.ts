@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChildren, Input } from '@angular/core';
 import {MatInputModule, MatInput, MatIconRegistry} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
-import {FormControl, FormGroupDirective, NgForm, Validators, ValidatorFn, AbstractControl} from '@angular/forms';
+import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, ValidatorFn, AbstractControl} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 
 export class GenericErrorStateMatcher implements ErrorStateMatcher {
@@ -34,10 +34,28 @@ export class AppComponent {
   emailListFormControl = new FormControl('', {
     validators: [Validators.required, emailListValidator],
     updateOn: 'blur'
-  );
+  });
   emailListMatcher = new GenericErrorStateMatcher();
 
   ownerEmailFormControl = new FormControl('', [Validators.required, Validators.email]);
   ownerEmailMatcher = new GenericErrorStateMatcher();
 
+  titleFormControl = new FormControl('', Validators.required);
+  titleMatcher = new GenericErrorStateMatcher();
+
+  firstInvalidEmails = function(){
+    let shown = 5;
+    let emails : string = this.emailListFormControl.getError('invalidEmails').emails;
+    let joined = emails.slice(0,shown).join(', ');
+    if (emails.length > shown){
+      joined += '...';
+    }
+    return joined;
+  }
+
+  pollForm = new FormGroup({
+    title: this.titleFormControl,
+    ownerEmail: this.ownerEmailFormControl,
+    emailList: this.emailListFormControl
+  });
 }
