@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <-- NgModel lives here
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule, MatIconModule, MatIconRegistry} from '@angular/material';
+import {MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule, MatIconModule, MatIconRegistry, MatStepperModule} from '@angular/material';
 import {HttpClientModule} from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { BuildOptionsComponent } from './build-options.component';
@@ -23,7 +23,8 @@ import { BuildOptionsComponent } from './build-options.component';
     FormsModule,
     ReactiveFormsModule,
     MatIconModule,
-    HttpClientModule
+    HttpClientModule,
+    MatStepperModule
   ],
   providers: [
     MatIconRegistry

@@ -1,14 +1,14 @@
 import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChildren, Input } from '@angular/core';
 import {MatInputModule, MatInput, MatIconRegistry} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
-import {FormArray, FormBuilder, FormControl} from '@angular/forms';
+import {FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'build-options',
   templateUrl: './build-options.component.html',
   styleUrls: ['./build-options.component.css']
 })
-export class BuildOptionsComponent {
+export class BuildOptionsComponent implements OnInit {
 
   @Input() parentFormGroup: FormGroup;
 
@@ -19,15 +19,17 @@ export class BuildOptionsComponent {
       'delete',
       sanitizer.bypassSecurityTrustResourceUrl('/assets/ic_delete_24px.svg')
     );
+  }
+
+  ngOnInit(){
     this.pollOptions = this.fb.array([
       new FormControl('Option 1'),
       new FormControl('Option 2')
     ]);
+    this.parentFormGroup.setControl('pollOptions', this.pollOptions);
   }
 
   @ViewChildren('pollOptionsElts') pollOptionsElts: QueryList<MatInput>;
-
-  //@Input() pollOptions: string[];
 
   addOptionAtEnd = function(){
     this.addOption(this.pollOptions.length);
@@ -45,7 +47,7 @@ export class BuildOptionsComponent {
   }
 
   onDelete = function(i : number){
-    if (!this.pollOptions[i].value){
+    if (!this.pollOptions.at(i).value){
       this.tryRemoveOption(i);
     }
   }
@@ -68,6 +70,7 @@ export class BuildOptionsComponent {
   }
 
   onBlurOption = function(i : number){
-    this.pollOptions[i].setValue(this.pollOptions[i].value || `Option ${i + 1}`);
+    let blurredControl : FormControl = this.pollOptions.at(i);
+    blurredControl.setValue(blurredControl.value || `Option ${i + 1}`);
   }
 }

@@ -5,33 +5,65 @@
   <mat-card-title>
     Build Your Poll
   </mat-card-title>
-  <form [formGroup]="pollForm" class="example-form" novalidate>
-    <mat-form-field class="example-full-width">
-      <input matInput type="text" placeholder="Poll Title" formControlName="title" [errorStateMatcher]="titleMatcher">
-      <mat-error *ngIf="pollForm.get('title').hasError('required')">
-        Please provide a title for your poll
-      </mat-error>
-    </mat-form-field>
-    <mat-form-field class="example-full-width">
-      <input matInput type="text" placeholder="Email" formControlName="ownerEmail" [errorStateMatcher]="ownerEmailMatcher">
-      <mat-error *ngIf="pollForm.get('ownerEmail').hasError('email') && !pollForm.get('ownerEmail').hasError('required')">
-        Please enter a valid email address
-      </mat-error>
-      <mat-error *ngIf="pollForm.get('ownerEmail').hasError('required')">
-        Please provide an email to manage your poll
-      </mat-error>
-    </mat-form-field>
-    <build-options [parentFormGroup]="pollForm">
-    </build-options>
-    <mat-form-field class="example-full-width">
-      <textarea matInput matTextareaAutosize matAutosizeMinRows="2" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="emailListMatcher"></textarea>
-      <mat-error *ngIf="pollForm.get('emailList').hasError('invalidEmails')">
-        The folowing are invalid emails: {{firstInvalidEmails()}}
-      </mat-error>
-      <mat-error *ngIf="pollForm.get('emailList').hasError('required')">
-        You can't create a poll without voters!
-      </mat-error>
-    </mat-form-field>
-    <button mat-raised-button color="primary">Create Poll</button>
+  <form [formGroup]="pollForm" class="example-form" (ngSubmit)="onSubmit()" novalidate>
+    <mat-vertical-stepper [linear]="isLinear">
+      <mat-step [stepControl]="pollForm.title">
+        <ng-template matStepLabel>Set Title</ng-template>
+        <mat-form-field class="example-full-width">
+          <input matInput type="text" placeholder="Poll Title" formControlName="title" [errorStateMatcher]="titleMatcher">
+          <mat-error *ngIf="pollForm.get('title').hasError('required')">
+            Please provide a title for your poll
+          </mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
+      <mat-step [stepControl]="ownerEmail">
+        <ng-template matStepLabel>Enter your email</ng-template>
+        <mat-form-field class="example-full-width">
+          <input matInput type="text" placeholder="Email" formControlName="ownerEmail" [errorStateMatcher]="ownerEmailMatcher">
+          <mat-error *ngIf="pollForm.get('ownerEmail').hasError('email') && !pollForm.get('ownerEmail').hasError('required')">
+            Please enter a valid email address
+          </mat-error>
+          <mat-error *ngIf="pollForm.get('ownerEmail').hasError('required')">
+            Please provide an email to manage your poll
+          </mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Create options</ng-template>
+        <build-options [parentFormGroup]="pollForm">
+        </build-options>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Enter voters</ng-template>
+        <mat-form-field class="example-full-width">
+          <textarea matInput matTextareaAutosize matAutosizeMinRows="3" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="emailListMatcher"></textarea>
+          <mat-error *ngIf="pollForm.get('emailList').hasError('invalidEmails')">
+            The folowing are invalid emails: {{firstInvalidEmails()}}
+          </mat-error>
+          <mat-error *ngIf="pollForm.get('emailList').hasError('required')">
+            You can't create a poll without voters!
+          </mat-error>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Submit</ng-template>
+        <button mat-raised-button color="primary" type="submit">Create Poll</button>
+      </mat-step>
+    </mat-vertical-stepper>
   </form>
 </mat-card>

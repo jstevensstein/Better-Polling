@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChildren, Input } from '@angular/core';
-import {MatInputModule, MatInput, MatIconRegistry} from '@angular/material';
+import {MatInputModule, MatInput, MatIconRegistry, MatStepperModule} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
 import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, ValidatorFn, AbstractControl, FormBuilder} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
@@ -27,14 +27,18 @@ emailListValidator =  function(control: AbstractControl) {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
+
+  const isLinear: true;
 
   pollForm: FormGroup;
   emailListMatcher = new GenericErrorStateMatcher();
   ownerEmailMatcher = new GenericErrorStateMatcher();
   titleMatcher = this.ownerEmailMatcher;
 
-  constructor(private fb: FormBuilder){
+  constructor(private fb: FormBuilder){}
+
+  ngOnInit(){
     this.createForm();
   }
 
@@ -45,18 +49,20 @@ export class AppComponent {
       emailList : new FormControl('', {
         validators: [Validators.required, emailListValidator],
         updateOn: 'blur'
-      }),
-      pollOptions : null
+      })
     });
   }
 
   firstInvalidEmails = function(){
     let shown = 5;
-    let emails : string[] = this.emailListFormControl.getError('invalidEmails').emails;
+    let emails : string[] = this.pollForm.get('emailList').getError('invalidEmails').emails;
     let joined = emails.slice(0,shown).join(', ');
     if (emails.length > shown){
       joined += '...';
     }
     return joined;
+  }
+
+  onSubmit(){
   }
 }
