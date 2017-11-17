@@ -21,7 +21,7 @@
         Please provide an email to manage your poll
       </mat-error>
     </mat-form-field>
-    <build-options [pollOptions]="pollOptions">
+    <build-options [parentFormGroup]="pollForm">
     </build-options>
     <mat-form-field class="example-full-width">
       <textarea matInput matTextareaAutosize matAutosizeMinRows="2" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="emailListMatcher"></textarea>

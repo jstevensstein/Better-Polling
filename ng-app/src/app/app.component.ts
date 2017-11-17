@@ -45,11 +45,10 @@ export class AppComponent {
       emailList : new FormControl('', {
         validators: [Validators.required, emailListValidator],
         updateOn: 'blur'
-      })
+      }),
+      pollOptions : null
     });
   }
-
-  pollOptions: {value: string}[] = [{value:'Option 1'}, {value: 'Option 2'}];
 
   firstInvalidEmails = function(){
     let shown = 5;
