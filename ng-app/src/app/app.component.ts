@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChildren, Input } from '@angular/core';
-import {MatInputModule, MatInput, MatIconRegistry, MatStepperModule} from '@angular/material';
+import {MatInputModule, MatInput, MatIconRegistry, MatStepperModule, MatProgressSpinner} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
 import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, ValidatorFn, AbstractControl, FormBuilder} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
@@ -29,12 +29,12 @@ emailListValidator =  function(control: AbstractControl) {
 })
 export class AppComponent implements OnInit{
 
-  const isLinear: true;
-
   pollForm: FormGroup;
   emailListMatcher = new GenericErrorStateMatcher();
   ownerEmailMatcher = new GenericErrorStateMatcher();
   titleMatcher = this.ownerEmailMatcher;
+
+  showSpinner: bool = false;
 
   constructor(private fb: FormBuilder){}
 
@@ -49,7 +49,11 @@ export class AppComponent implements OnInit{
       emailList : new FormControl('', {
         validators: [Validators.required, emailListValidator],
         updateOn: 'blur'
-      })
+      }),
+      pollOptions: this.fb.array([
+        new FormControl('Option 1'),
+        new FormControl('Option 2')
+      ]);
     });
   }
 
@@ -63,6 +67,7 @@ export class AppComponent implements OnInit{
     return joined;
   }
 
-  onSubmit(){
+  tryCreatePoll(){
+    this.showSpinner = true;
   }
 }

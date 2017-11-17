@@ -11,22 +11,13 @@ import {FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
 export class BuildOptionsComponent implements OnInit {
 
   @Input() parentFormGroup: FormGroup;
-
-  pollOptions : FormArray;
+  @Input() pollOptions : FormArray;
 
   constructor(private fb: FormBuilder, iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     iconRegistry.addSvgIcon(
       'delete',
       sanitizer.bypassSecurityTrustResourceUrl('/assets/ic_delete_24px.svg')
     );
-  }
-
-  ngOnInit(){
-    this.pollOptions = this.fb.array([
-      new FormControl('Option 1'),
-      new FormControl('Option 2')
-    ]);
-    this.parentFormGroup.setControl('pollOptions', this.pollOptions);
   }
 
   @ViewChildren('pollOptionsElts') pollOptionsElts: QueryList<MatInput>;
@@ -42,8 +33,9 @@ export class BuildOptionsComponent implements OnInit {
     });
   }
 
-  onEnter = function(i : number){
+  onEnter = function(event: any, i : number){
     this.addOption(i+1);
+    event.stopProgation();
   }
 
   onDelete = function(i : number){

@@ -2,9 +2,9 @@
   <div formArrayName="pollOptions">
     <div *ngFor="let option of pollOptions.controls; let i=index">
         <mat-form-field>
-          <input #pollOptionsElts [formControlName]="i" matInput type="text"(blur)="onBlurOption(i)" (keyup.enter)="onEnter(i)" (keyup.backspace)="onDelete(i)">
+          <input #pollOptionsElts [formControlName]="i" matInput type="text"(blur)="onBlurOption(i)" (keyup.enter)="onEnter($event,i)" (keyup.backspace)="onDelete(i)">
         </mat-form-field>
-        <!-- <i class="material-icons md-dark" (click)="tryRemoveOption(i)" [class.md-inactive]="pollOptions.length < 3">remove_circle</i> -->
+        <i class="material-icons md-dark" (click)="tryRemoveOption(i)" [class.md-inactive]="pollOptions.length < 3">remove_circle</i>
     </div>
     <div>
       <mat-form-field>
