@@ -5,5 +5,4 @@ export class Poll{
     public emails: string[],
     public owner: string[]
   ){}
-  
 }

@@ -11,6 +11,7 @@ import { PollService } from './poll.service';
 import { AppRoutingModule } from './/app-routing.module';
 import { BuildPollComponent } from './build-poll/build-poll.component';
 import { IndexComponent } from './index/index.component';
+import { BallotComponent } from './ballot/ballot.component';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { IndexComponent } from './index/index.component';
     BuildOptionsComponent,
     ErrorDialogComponent,
     BuildPollComponent,
-    IndexComponent
+    IndexComponent,
+    BallotComponent
   ],
   imports: [
     BrowserModule,
