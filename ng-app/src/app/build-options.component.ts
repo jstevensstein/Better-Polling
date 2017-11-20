@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChildren, Input } from '@angular/core';
+import { Component, ViewChild, ElementRef, Directive, QueryList, ViewChildren, Input } from '@angular/core';
 import {MatInputModule, MatInput, MatIconRegistry} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
 import {FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
@@ -8,7 +8,7 @@ import {FormArray, FormBuilder, FormControl, FormGroup} from '@angular/forms';
   templateUrl: './build-options.component.html',
   styleUrls: ['./build-options.component.css']
 })
-export class BuildOptionsComponent implements OnInit {
+export class BuildOptionsComponent {
 
   @Input() parentFormGroup: FormGroup;
   @Input() pollOptions : FormArray;
@@ -64,5 +64,9 @@ export class BuildOptionsComponent implements OnInit {
   onBlurOption = function(i : number){
     let blurredControl : FormControl = this.pollOptions.at(i);
     blurredControl.setValue(blurredControl.value || `Option ${i + 1}`);
+  }
+
+  disableDeleteOptions = function() : boolean {
+    return this.pollOptions.length < 3;
   }
 }

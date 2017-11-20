@@ -4,29 +4,39 @@ require('dotenv').config()
 var express = require('express');
 var bodyParser = require('body-parser')
 var path = require('path');
+var cors = require('cors');
 
 var PollsService = require('./pollsService.js');
 var pollsRepo = require('./dataAccess/pollsRepository.js');
 
 var app = express();
-var urlencodedParser = bodyParser.urlencoded({ extended: true })
 
-var genericErrorMessage = 'An enexpected error occurred';
+var whitelist = [process.env.ANGULAR_ORIGIN];
+var corsOptions = {
+  origin: whitelist,
+  methods: "GET,POST,OPTIONS"
+};
+
+var myCors = cors(corsOptions);
+app.use(myCors);
+
+app.use(bodyParser.json());
+
+var genericErrorMessage = 'An unexpected error occurred';
 
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 app.use("/vendor", express.static(path.join(__dirname, "vendor")));
 
-
 app.get('/', function(req, res) {
   res.render("index");
 });
 
-app.post('/createpoll', urlencodedParser, function(req, res){
+app.post('/createpoll', function(req, res){
   PollsService.createPollAndBallotsAndSendEmails(
     req.body.name, req.body.owner, req.body.choices, req.body.emails
   ).then(function(){
-    res.end()
+    res.json({});
   }, function(reason){
     console.log(reason);
     res.json({error: genericErrorMessage});
@@ -55,7 +65,7 @@ app.get('/ballot/:id', function(req, res){
   }
 });
 
-app.post('/ballot/:id/', urlencodedParser, function(req, res){
+app.post('/ballot/:id/', function(req, res){
   var id = req.params.id;
   var token = req.query.token;
   if (PollsService.validateBallotToken(id, token)) {
