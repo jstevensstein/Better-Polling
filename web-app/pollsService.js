@@ -23,12 +23,12 @@ function PollsService(){
     }
 
     function generateBallotUrl(ballotId){
-        return 'http://localhost:3000/ballot/' + ballotId +'?token=' + generateBallotToken(ballotId);
+        return `${process.env.ANGULAR_ORIGIN}/ballot/${ballotId}?token=${generateBallotToken(ballotId)}`;
     }
 
     function sendEmailForBallot(ballotId, email){
         //use email as salt; this and the secret will provide enough security for our purposes
-        
+
         let ballotUrl = generateBallotUrl(ballotId);
         var options = {
             'Recipients': [{ Email: email }],

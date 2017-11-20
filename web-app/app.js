@@ -45,14 +45,13 @@ app.post('/createpoll', function(req, res){
 
 app.get('/ballot/:id', function(req, res){
   var id = req.params.id;
-  var email = req.params.email;
   var token = req.query.token;
   if (PollsService.validateBallotToken(id, token)){
     pollsRepo.getBallotById(id).then(function(ballot){
       return ballot.toModel();
     })
     .then(function(ballotModel){
-      res.render("vote", {ballot: ballotModel});
+      res.json({ballot: ballotModel});
     },
     function(reason){
       //TODO: unexpected error view

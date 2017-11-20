@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { PollService } from '../poll.service'
+import { Ballot } from '../ballot';
 
 @Component({
   selector: 'app-ballot',
@@ -10,6 +11,8 @@ import { PollService } from '../poll.service'
 })
 export class BallotComponent implements OnInit {
 
+  ballot : Ballot;
+
   constructor(
     private route: ActivatedRoute,
     private pollService: PollService,
@@ -17,6 +20,15 @@ export class BallotComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.getBallot();
+  }
+
+  getBallot(){
+    let id = parseInt(this.route.snapshot.paramMap.get('id'));
+    let token = this.route.snapshot.queryParamMap.get('token');
+    this.pollService.getBallot(id, token).subscribe(res => {
+      this.ballot = res.ballot as Ballot;
+    });
   }
 
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
-import {Poll} from './poll'
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { Poll } from './poll';
+import { Ballot } from './ballot';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 
 const httpOptions = {
@@ -12,14 +13,22 @@ const httpOptions = {
 @Injectable()
 export class PollService {
 
-  private apiBaseUrl = 'http://localhost:3000/'
+  private apiOrigin = 'http://localhost:3000'
 
   constructor(private http : HttpClient) { }
 
   upsertPoll(poll: Poll) : Observable<any> {
-    return this.http.post<any>(`${this.apiBaseUrl}createPoll`, poll, httpOptions).pipe(
+    return this.http.post<any>(`${this.apiOrigin}/createPoll`, poll, httpOptions).pipe(
       tap(() => console.log(`added poll`)),
       catchError(this.handleError<any>('addPoll'))
+    );
+  }
+
+  getBallot(id: number, token: string) : Observable<any> {
+    let url = `${this.apiOrigin}/ballot/${id}?token=${token}`;
+    return this.http.get<Ballot>(url).pipe(
+      tap(_ => console.log(`fetched ballot id=${id}`)),
+      catchError(this.handleError<Ballot>(`getPoll id=${id}`))
     );
   }
 
