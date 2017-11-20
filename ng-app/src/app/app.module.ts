@@ -8,13 +8,18 @@ import { AppComponent } from './app.component';
 import { BuildOptionsComponent } from './build-options.component';
 import { ErrorDialogComponent } from './error-dialog.component';
 import { PollService } from './poll.service';
+import { AppRoutingModule } from './/app-routing.module';
+import { BuildPollComponent } from './build-poll/build-poll.component';
+import { IndexComponent } from './index/index.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     BuildOptionsComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    BuildPollComponent,
+    IndexComponent
   ],
   imports: [
     BrowserModule,
@@ -29,7 +34,9 @@ import { PollService } from './poll.service';
     HttpClientModule,
     MatStepperModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    AppRoutingModule,
+    MatToolbarModule
   ],
   providers: [
     MatIconRegistry,
@@ -37,7 +44,7 @@ import { PollService } from './poll.service';
   ],
   entryComponents:[
     ErrorDialogComponent
-  ]
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
