@@ -2,8 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <-- NgModel lives here
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule, MatIconModule, MatIconRegistry, MatStepperModule, MatProgressSpinnerModule, MatDialogModule} from '@angular/material';
+import { MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule, MatIconModule, MatIconRegistry, MatStepperModule, MatProgressSpinnerModule, MatDialogModule, MatListModule} from '@angular/material';
 import { HttpClientModule } from '@angular/common/http';
+
+import { SortablejsModule } from 'angular-sortablejs';
+
 import { AppComponent } from './app.component';
 import { BuildOptionsComponent } from './build-options.component';
 import { ErrorDialogComponent } from './error-dialog.component';
@@ -38,7 +41,9 @@ import { BallotComponent } from './ballot/ballot.component';
     MatProgressSpinnerModule,
     MatDialogModule,
     AppRoutingModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatListModule,
+    SortablejsModule.forRoot({ animation: 150 })
   ],
   providers: [
     MatIconRegistry,

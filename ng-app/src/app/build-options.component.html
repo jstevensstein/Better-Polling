@@ -5,7 +5,7 @@
           <input #pollOptionsElts [formControlName]="i" matInput type="text"(blur)="onBlurOption(i)" (keyup.enter)="onEnter($event,i)" (keyup.backspace)="onDelete(i)">
         </mat-form-field>
         <button mat-icon-button (click)="tryRemoveOption(i)" [disabled]="disableDeleteOptions()">
-          <i class="material-icons md-dark"  [class.md-inactive]="disableDeleteOptions()">remove_circle</i>
+          <i class="material-icons md-dark"  [class.md-inactive]="disableDeleteOptions()">delete</i>
         </button>
     </div>
     <div>

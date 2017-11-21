@@ -60,7 +60,7 @@ app.get('/ballot/:id', function(req, res){
   }
   else{
     //TODO: unauthorized view
-    res.json({error: {message: "You are not authorized to view this poll."}});
+    res.json({error: {message: "You are not authorized to view this ballot."}});
   }
 });
 

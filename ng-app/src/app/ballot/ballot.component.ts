@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { PollService } from '../poll.service'
+import { MatListModule } from '@angular/material';
+
+import { PollService } from '../poll.service';
 import { Ballot } from '../ballot';
 
 @Component({
@@ -30,5 +32,4 @@ export class BallotComponent implements OnInit {
       this.ballot = res.ballot as Ballot;
     });
   }
-
 }
