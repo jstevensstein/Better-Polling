@@ -5,7 +5,7 @@ import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, Validato
 import {ErrorStateMatcher} from '@angular/material/core';
 import {PollService} from '../poll.service';
 import {Poll} from '../poll';
-import { ErrorDialogComponent } from '../error-dialog.component';
+import { NotifyDialogComponent } from '../notify-dialog.component';
 import { LoadingComponent } from '../loading/loading.component';
 import { catchError, map, tap } from 'rxjs/operators';
 
@@ -40,7 +40,11 @@ export class BuildPollComponent implements OnInit {
   showSpinner: boolean = false;
   pollCreated: boolean = false;
 
-  constructor(private fb: FormBuilder, private pollService : PollService, public errorDialog: MatDialog){}
+  constructor(
+    private fb: FormBuilder,
+    private pollService : PollService,
+    public notifyDialog: MatDialog
+  ){}
 
   ngOnInit(){
     this.createForm();
@@ -76,12 +80,6 @@ export class BuildPollComponent implements OnInit {
     return joined;
   }
 
-  openErrorDialog(){
-    this.errorDialog.open(ErrorDialogComponent, {
-      height: '250px'
-    });
-  }
-
   tryCreatePoll = function() : void {
     this.showSpinner = true;
     let pre = this.pollForm.value;
@@ -90,7 +88,13 @@ export class BuildPollComponent implements OnInit {
     let res = this.pollService.upsertPoll(poll).subscribe((res) => {
       this.showSpinner = false;
       if (!res || res.error){
-        this.openErrorDialog();
+        this.notifyDialog.open(NotifyDialogComponent, {
+          data: {
+            title: 'Uh Oh',
+            message: 'An unknown error occurred.',
+            closeName: 'Close'
+          }
+        });
       }
       else{
         this.pollCreated = true;

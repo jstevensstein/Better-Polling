@@ -67,23 +67,33 @@ app.get('/ballot/:id', function(req, res){
 app.post('/ballot/:id/', function(req, res){
   var id = req.params.id;
   var token = req.query.token;
-  if (PollsService.validateBallotToken(id, token)) {
-    var order = req.body.order;
-    pollsRepo.submitBallot(id, order)
-    .then(function(){
-      res.end();
-      pollsRepo.getBallotById(id)
-      .then(function(ballot){
-        PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
-      })
-    }, function(reason){
-      console.log(reason);
-      res.json({error: {message: genericErrorMessage}})
-    })
-  }
-  else{
+  var ballot;
+  if (!PollsService.validateBallotToken(id, token)) {
     res.json({error: {message: "You are not authorized to submit this ballot."}});
+    return;
   }
+  pollsRepo.getBallotById(id)
+  .then(function(b){
+    ballot = b;
+    return ballot.poll;
+  })
+  .then(function(poll){
+    if (poll.closed){
+      res.json({error: {message: "Voting on this poll is closed."}});
+      return;
+    }
+    else {
+      var order = req.body.order;
+      return pollsRepo.submitBallot(id, order)
+      .then(function(){
+        res.json({});
+        PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
+      });
+    }
+  }, function(reason){
+    console.log(reason);
+    res.json({error: {message: genericErrorMessage}})
+  });
 });
 
 

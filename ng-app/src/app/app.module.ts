@@ -9,7 +9,7 @@ import { SortablejsModule } from 'angular-sortablejs';
 
 import { AppComponent } from './app.component';
 import { BuildOptionsComponent } from './build-options.component';
-import { ErrorDialogComponent } from './error-dialog.component';
+import { NotifyDialogComponent } from './notify-dialog.component';
 import { PollService } from './poll.service';
 import { AppRoutingModule } from './/app-routing.module';
 import { BuildPollComponent } from './build-poll/build-poll.component';
@@ -22,7 +22,7 @@ import { LoadingComponent} from './loading/loading.component';
   declarations: [
     AppComponent,
     BuildOptionsComponent,
-    ErrorDialogComponent,
+    NotifyDialogComponent,
     BuildPollComponent,
     IndexComponent,
     BallotComponent,
@@ -52,7 +52,7 @@ import { LoadingComponent} from './loading/loading.component';
     PollService
   ],
   entryComponents:[
-    ErrorDialogComponent
+    NotifyDialogComponent
   ],
   bootstrap: [AppComponent]
 })

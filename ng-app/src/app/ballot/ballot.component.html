@@ -1,4 +1,4 @@
-<mat-card *ngIf="ballot; else loading">
+<mat-card *ngIf="ballot">
   <mat-card-title>
     {{ballot.pollName}}
   </mat-card-title>
@@ -18,9 +18,7 @@
     </mat-nav-list>
   </div>
   <div style="margin-top:20px;">
-    <button mat-raised-button color="primary">Submit Ballot</button>
+    <button mat-raised-button color="primary" (click)="submitBallot()">Submit Ballot</button>
   </div>
 </mat-card>
-<ng-template #loading>
-  <loading></loading>
-</ng-template>
+<loading *ngIf="showSpinner"></loading>

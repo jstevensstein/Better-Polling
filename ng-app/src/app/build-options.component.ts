@@ -35,7 +35,6 @@ export class BuildOptionsComponent {
 
   onEnter = function(event: any, i : number){
     this.addOption(i+1);
-    event.stopProgation();
   }
 
   onDelete = function(i : number){

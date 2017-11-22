@@ -32,6 +32,14 @@ export class PollService {
     );
   }
 
+  upsertBallotChoices(id: number, order: number[], token: string) : Observable<any> {
+    let url = `${this.apiOrigin}/ballot/${id}?token=${token}`;
+    return this.http.post<any>(url, {order: order}, httpOptions).pipe(
+      tap(() => console.log(`upserted ballot choices`)),
+      catchError(this.handleError<any>('upsertBallotChoices'))
+    );
+  }
+
   /**
    * Handle Http operation that failed.
    * Let the app continue.
