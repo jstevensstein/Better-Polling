@@ -15,6 +15,7 @@ import { AppRoutingModule } from './/app-routing.module';
 import { BuildPollComponent } from './build-poll/build-poll.component';
 import { IndexComponent } from './index/index.component';
 import { BallotComponent } from './ballot/ballot.component';
+import { LoadingComponent} from './loading/loading.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { BallotComponent } from './ballot/ballot.component';
     ErrorDialogComponent,
     BuildPollComponent,
     IndexComponent,
-    BallotComponent
+    BallotComponent,
+    LoadingComponent
   ],
   imports: [
     BrowserModule,

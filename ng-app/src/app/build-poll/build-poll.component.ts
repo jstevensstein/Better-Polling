@@ -5,7 +5,8 @@ import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, Validato
 import {ErrorStateMatcher} from '@angular/material/core';
 import {PollService} from '../poll.service';
 import {Poll} from '../poll';
-import {ErrorDialogComponent} from '../error-dialog.component';
+import { ErrorDialogComponent } from '../error-dialog.component';
+import { LoadingComponent } from '../loading/loading.component';
 import { catchError, map, tap } from 'rxjs/operators';
 
 export class GenericErrorStateMatcher implements ErrorStateMatcher {
