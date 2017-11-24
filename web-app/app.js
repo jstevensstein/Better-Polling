@@ -3,7 +3,6 @@
 require('dotenv').config()
 var express = require('express');
 var bodyParser = require('body-parser')
-var path = require('path');
 var cors = require('cors');
 
 var PollsService = require('./pollsService.js');
@@ -23,14 +22,6 @@ app.use(myCors);
 app.use(bodyParser.json());
 
 var genericErrorMessage = 'An unexpected error occurred';
-
-app.set("view engine", "pug");
-app.set("views", path.join(__dirname, "views"));
-app.use("/vendor", express.static(path.join(__dirname, "vendor")));
-
-app.get('/', function(req, res) {
-  res.render("index");
-});
 
 app.post('/createpoll', function(req, res){
   PollsService.createPollAndBallotsAndSendEmails(
@@ -54,12 +45,10 @@ app.get('/ballot/:id', function(req, res){
       res.json({ballot: ballotModel});
     },
     function(reason){
-      //TODO: unexpected error view
       res.json({error: {message: genericErrorMessage}})
     });
   }
   else{
-    //TODO: unauthorized view
     res.json({error: {message: "You are not authorized to view this ballot."}});
   }
 });
