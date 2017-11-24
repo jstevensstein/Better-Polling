@@ -10,18 +10,12 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "bootstrap-listbuilder": "^0.2.0",
-    "browserify": "^14.5.0",
     "caritat": "0.0.4",
     "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "express": "^4.15.4",
     "js-sha3": "^0.6.1",
-    "mysql": "^2.14.1",
     "node-mailjet": "^3.2.1",
-    "path": "^0.12.7",
-    "promise-mysql": "^3.1.0",
-    "pug": "^2.0.0-rc.4",
-    "vendor": "^1.7.0"
+    "promise-mysql": "^3.1.0"
   }
 }
