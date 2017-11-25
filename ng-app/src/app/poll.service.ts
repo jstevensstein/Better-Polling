@@ -5,6 +5,7 @@ import { Poll } from './poll';
 import { Ballot } from './ballot';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -13,7 +14,7 @@ const httpOptions = {
 @Injectable()
 export class PollService {
 
-  private apiOrigin = 'http://localhost:3000'
+  private apiOrigin = environment.apiOrigin;
 
   constructor(private http : HttpClient) { }
 

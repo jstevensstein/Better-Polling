@@ -17,6 +17,8 @@ import { IndexComponent } from './index/index.component';
 import { BallotComponent } from './ballot/ballot.component';
 import { LoadingComponent} from './loading/loading.component';
 
+import { environment } from '../environments/environment';
+
 
 @NgModule({
   declarations: [
