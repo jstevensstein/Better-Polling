@@ -10,6 +10,8 @@ var pollsRepo = require('./dataAccess/pollsRepository.js');
 
 var app = express();
 
+app.enable('trust proxy');
+
 var whitelist = [process.env.ANGULAR_ORIGIN];
 var corsOptions = {
   origin: whitelist,
@@ -17,7 +19,7 @@ var corsOptions = {
 };
 
 var myCors = cors(corsOptions);
-app.use(myCors);
+app.use(cors());
 
 app.use(bodyParser.json());
 

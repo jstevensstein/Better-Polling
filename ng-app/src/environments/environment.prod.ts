@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiOrigin: 'http://localhost:3000'
+  apiOrigin: 'https://better-polling-2-180400.appspot.com'
 };
