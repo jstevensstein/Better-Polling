@@ -6,25 +6,33 @@ function PollsRepository(){
     var Promise = require("bluebird");
     var mysql = require('promise-mysql');
 
-    var pool  = mysql.createPool({
+    var dbConfig = {
         host:       process.env.MYSQL_HOST,
         user:       process.env.MYSQL_USER,
         password:   process.env.MYSQL_PASSWORD,
-        database:   'pollingdb',
-        connectTimeout  : 60 * 60 * 1000,
-        aquireTimeout   : 60 * 60 * 1000,
-        timeout         : 60 * 60 * 1000
-    });
-
-    function getConnection() {
-        return pool.getConnection().disposer(function(connection) {
-            pool.releaseConnection(connection);
-        });
+        database:   'pollingdb'
     }
 
+    // var pool  = mysql.createPool(dbConfig);
+    //
+    // function getConnection() {
+    //     return pool.getConnection().disposer(function(connection) {
+    //         pool.releaseConnection(connection);
+    //     });
+    // }
+
+    function getConnection(){
+      return mysql.createConnection(dbConfig);
+    }
+
+    function runQuery(sql, values){
+      return getConnection().then(function(conn){
+        return conn.query(sql, values);
+      });
+    }
 
     this.getPollById = function(id){
-        return pool.query('select * from `poll` where `id` = ?', [id])
+        return runQuery('select * from `poll` where `id` = ?', [id])
         .then(function(rows){
             let pollRow = rows[0];
             if (!pollRow){
@@ -34,8 +42,8 @@ function PollsRepository(){
         });
     }
 
-    this.getPollOptions = function(pollId){
-        return pool.query('select * from `poll_option` where `poll_id` = ?', [pollId])
+    this.getPollOptions = function(pollId) {
+        return runQuery('select * from `poll_option` where `poll_id` = ?', [pollId])
         .then(function(rows){
             let options = [];
             rows.forEach(function(row){
@@ -75,11 +83,11 @@ function PollsRepository(){
     }
 
     this.updatePoll = function(id, updates, connection){
-        return pool.query('update poll set ? where `id` = ?', [updates, id]);
+        return runQuery('update poll set ? where `id` = ?', [updates, id]);
     }
 
     this.getBallotById = function(id){
-        return pool.query('select * from `ballot` where `id` = ?', [id])
+        return runQuery('select * from `ballot` where `id` = ?', [id])
         .then(function(rows){
             let record = rows[0];
             return new domain.Ballot(id, record.poll_id, !!record.complete);
@@ -87,7 +95,7 @@ function PollsRepository(){
     }
 
     this.getBallotsForPoll = function(pollId){
-        return pool.query('select * from `ballot` where `poll_id` = ?', [pollId])
+        return runQuery('select * from `ballot` where `poll_id` = ?', [pollId])
         .then(function(rows){
             var ballots = [];
             rows.forEach(function(row){
@@ -105,7 +113,7 @@ function PollsRepository(){
     }
 
     this.addBallot = function(pollId, email){
-        return pool.query('INSERT INTO ballot SET ?', {poll_id: pollId, email: email})
+        return runQuery('INSERT INTO ballot SET ?', {poll_id: pollId, email: email})
         .then(function(results){
             return Promise.resolve(results.insertId);
         });
@@ -152,7 +160,7 @@ function PollsRepository(){
     }
 
     this.getBallotChoices = function(id){
-        return pool.query('select * from `ballot_choice` where `ballot_id` = ? order by priority', [id])
+        return runQuery('select * from `ballot_choice` where `ballot_id` = ? order by priority', [id])
         .then(function(rows){
             let choices = [];
             rows.forEach(function(row){
