@@ -1,6 +1,6 @@
 'use strict'
 
-//require('@google-cloud/debug-agent').start();
+require('@google-cloud/debug-agent').start();
 
 require('dotenv').config()
 
