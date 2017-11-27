@@ -13,6 +13,7 @@ var Mailjet = require('node-mailjet').connect(
 function PollsService(){
     var SenderAddress = process.env.MJ_SENDER_ADDRESS;
     var Secret = process.env.SECRET;
+    var BaseUrl = process.env.ANGULAR_BASE_URL;
 
     this.validateBallotToken = function(ballotId, token){
         return token == generateBallotToken(ballotId);
@@ -23,7 +24,7 @@ function PollsService(){
     }
 
     function generateBallotUrl(ballotId){
-        return `${process.env.ANGULAR_ORIGIN}/ballot/${ballotId}?token=${generateBallotToken(ballotId)}`;
+        return `${BaseUrl}/ballot/${ballotId}?token=${generateBallotToken(ballotId)}`;
     }
 
     function sendEmailForBallot(ballotId, email){
