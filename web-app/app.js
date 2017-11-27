@@ -1,6 +1,9 @@
 'use strict'
 
 require('dotenv').config()
+
+//require('@google-cloud/debug-agent').start();
+
 var express = require('express');
 var bodyParser = require('body-parser')
 var cors = require('cors');
@@ -88,4 +91,4 @@ app.post('/ballot/:id/', function(req, res){
 });
 
 
-app.listen(3000);
+app.listen(process.env.PORT || 8080);
