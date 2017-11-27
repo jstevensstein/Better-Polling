@@ -2,7 +2,7 @@
 
 require('dotenv').config()
 
-//require('@google-cloud/debug-agent').start();
+require('@google-cloud/debug-agent').start();
 
 var express = require('express');
 var bodyParser = require('body-parser')
