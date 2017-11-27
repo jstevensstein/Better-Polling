@@ -10,7 +10,10 @@ function PollsRepository(){
         host:       process.env.MYSQL_HOST,
         user:       process.env.MYSQL_USER,
         password:   process.env.MYSQL_PASSWORD,
-        database:   'pollingdb'
+        database:   'pollingdb',
+        connectTimeout  : 60 * 60 * 1000,
+        aquireTimeout   : 60 * 60 * 1000,
+        timeout         : 60 * 60 * 1000
     });
 
     function getConnection() {
