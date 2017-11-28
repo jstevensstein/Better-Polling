@@ -8,7 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SortablejsModule } from 'angular-sortablejs';
 
 import { AppComponent } from './app.component';
-import { BuildOptionsComponent } from './build-options.component';
+import { BuildOptionsComponent } from './build-options/build-options.component';
 import { NotifyDialogComponent } from './notify-dialog.component';
 import { PollService } from './poll.service';
 import { AppRoutingModule } from './/app-routing.module';
