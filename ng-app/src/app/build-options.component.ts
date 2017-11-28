@@ -37,7 +37,7 @@ export class BuildOptionsComponent {
     this.addOption(i+1);
   }
 
-  onDelete = function(i : number){
+  onKeydownBackspace = function(i : number){
     if (!this.pollOptions.at(i).value){
       this.tryRemoveOption(i);
     }
