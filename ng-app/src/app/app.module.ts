@@ -1,8 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <-- NgModel lives here
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule, MatIconModule, MatIconRegistry, MatStepperModule, MatProgressSpinnerModule, MatDialogModule, MatListModule} from '@angular/material';
+import { MatInputModule, MatButtonModule, MatCardModule, MatToolbarModule,
+  MatIconModule, MatIconRegistry, MatStepperModule, MatProgressSpinnerModule,
+  MatDialogModule, MatListModule} from '@angular/material';
 import { HttpClientModule } from '@angular/common/http';
 
 import { SortablejsModule } from 'angular-sortablejs';
