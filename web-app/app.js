@@ -26,22 +26,74 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-var genericErrorMessage = 'An unexpected error occurred';
+const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+const GENERIC_ERROR_MESSAGE = 'An unexpected error occurred';
+
+function writeGenericError(res){
+  res.json({error: GENERIC_ERROR_MESSAGE});
+}
+
+function writeEmptyJson(res){
+  res.json({});
+}
 
 app.post('/createpoll', function(req, res){
-  PollsService.createPollAndBallotsAndSendEmails(
-    req.body.name, req.body.owner, req.body.choices, req.body.emails
-  ).then(function(){
-    res.json({});
-  }, function(reason){
-    console.log(reason);
-    res.json({error: genericErrorMessage});
-  });
+  try{
+    let name = req.body.name;
+    if (!name){
+      writeGenericError(res);
+      return;
+    }
+    let owner = req.body.owner;
+    if (!owner || !owner.match(EMAIL_REGEX)){
+      writeGenericError(res);
+      return;
+    }
+    let emails = req.body.emails;
+    let match = emails.map(e => e.match(EMAIL_REGEX));
+    let validEmails = emails.filter(function(_, index){
+      return match[index];
+    });
+    let invalidEmails = emails.filter(function(_, index){
+      return !match[index];
+    });
+    let choices = req.body.choices;
+    if (!choices || choices.length < 2){
+      writeGenericError(res);
+      return;
+    }
+    PollsService.createPollAndBallotsAndSendEmails(
+      name, owner, choices, validEmails
+    ).then(function(){
+      if (invalidEmails.length){
+        writeGenericError(res);
+        return;
+      }
+      else{
+        writeEmptyJson(res);
+        return;
+      }
+    }, function(reason){
+      console.log(reason);
+      writeGenericError(res);
+      return;
+    });
+  }
+  catch(err){
+    //log error;
+    writeGenericError(res);
+    return;
+  }
 });
 
 app.get('/ballot/:id', function(req, res){
   var id = req.params.id;
   var token = req.query.token;
+  if (!id || !token){
+    writeGenericError(res);
+    return;
+  }
   if (PollsService.validateBallotToken(id, token)){
     pollsRepo.getBallotById(id).then(function(ballot){
       return ballot.toModel();
@@ -50,7 +102,7 @@ app.get('/ballot/:id', function(req, res){
       res.json({ballot: ballotModel});
     },
     function(reason){
-      res.json({error: {message: genericErrorMessage}})
+      res.json({error: {message: GENERIC_ERROR_MESSAGE}})
     });
   }
   else{
@@ -62,6 +114,10 @@ app.post('/ballot/:id/', function(req, res){
   var id = req.params.id;
   var token = req.query.token;
   var ballot;
+  if (!id || !token){
+    writeGenericError(res);
+    return;
+  }
   if (!PollsService.validateBallotToken(id, token)) {
     res.json({error: {message: "You are not authorized to submit this ballot."}});
     return;
@@ -78,6 +134,7 @@ app.post('/ballot/:id/', function(req, res){
     }
     else {
       var order = req.body.order;
+
       return pollsRepo.submitBallot(id, order)
       .then(function(){
         res.json({});
@@ -85,8 +142,7 @@ app.post('/ballot/:id/', function(req, res){
       });
     }
   }, function(reason){
-    console.log(reason);
-    res.json({error: {message: genericErrorMessage}})
+    res.json({error: {message: GENERIC_ERROR_MESSAGE}})
   });
 });
 
