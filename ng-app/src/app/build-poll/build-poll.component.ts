@@ -8,6 +8,7 @@ import {Poll} from '../poll';
 import { NotifyDialogComponent } from '../notify-dialog.component';
 import { LoadingComponent } from '../loading/loading.component';
 import { catchError, map, tap } from 'rxjs/operators';
+import {EMAIL_REGEX} from '../../../../shared/globals';
 
 export class GenericErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -20,7 +21,7 @@ var emailListValidator : ValidatorFn = function(control: AbstractControl) {
   let invalidEmails : string[] = (control.value as string)
   .split(/\r|\n|;|,/)
   .filter(function(email){
-    return email && !email.trim().match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    return email && !email.trim().match(EMAIL_REGEX);
   });
   return invalidEmails.length ? {'invalidEmails' : {emails: invalidEmails}} : null;
 }

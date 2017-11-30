@@ -23,7 +23,9 @@ export class BuildOptionsComponent {
   @ViewChildren('pollOptionsElts') pollOptionsElts: QueryList<MatInput>;
 
   addOptionAtEnd = function(){
-    this.addOption(this.pollOptions.length);
+    setTimeout(_ => {
+      this.addOption(this.pollOptions.length);
+    }, 100);
   }
 
   addOption = function(i: number){
