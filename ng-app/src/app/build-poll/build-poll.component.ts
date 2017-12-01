@@ -11,9 +11,8 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { EMAIL_REGEX } from '../../../../shared/globals';
 
 export class GenericErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    const isSubmitted = form && form.submitted;
-    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+  isErrorState(control: FormControl | null): boolean {
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 }
 
@@ -33,9 +32,7 @@ var emailListValidator : ValidatorFn = function(control: AbstractControl) {
 })
 export class BuildPollComponent implements OnInit {
   pollForm: FormGroup;
-  emailListMatcher = new GenericErrorStateMatcher();
-  ownerEmailMatcher = new GenericErrorStateMatcher();
-  titleMatcher = this.ownerEmailMatcher;
+  errorStateMatcher = new GenericErrorStateMatcher();
   @ViewChild('stepper') stepper: MatStepper;
 
   showSpinner: boolean = false;
@@ -82,6 +79,9 @@ export class BuildPollComponent implements OnInit {
   }
 
   tryCreatePoll = function() : void {
+    if (!this.pollForm.valid){
+      return; //should immediately show validation issue with emails
+    }
     this.showSpinner = true;
     let pre = this.pollForm.value;
     let poll = new Poll(pre.title, pre.pollOptions,
