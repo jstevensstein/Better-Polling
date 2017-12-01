@@ -8,7 +8,7 @@ import {Poll} from '../poll';
 import { NotifyDialogComponent } from '../notify-dialog.component';
 import { LoadingComponent } from '../loading/loading.component';
 import { catchError, map, tap } from 'rxjs/operators';
-import {EMAIL_REGEX} from '../../../../shared/globals';
+import { EMAIL_REGEX } from '../../../../shared/globals';
 
 export class GenericErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { MatListModule, MatDialog } from '@angular/material';
-import {NotifyDialogComponent } from '../notify-dialog.component';
+import { NotifyDialogComponent } from '../notify-dialog.component';
+import { SortablejsOptions } from 'angular-sortablejs';
 
 import { PollService } from '../poll.service';
 import { Ballot } from '../ballot';
@@ -45,6 +46,17 @@ export class BallotComponent implements OnInit {
     });
   }
 
+  getMessage(){
+    if (!this.ballot.closed){
+      return `Drag the options into your preferred order, then submit!
+      Your first choice should be on top, your last choice on bottom. You may
+      resubmit at any point before the poll closes.`
+    }
+    else {
+      return `This poll is now closed, but your ballot is displayed below.`
+    }
+  }
+
   openNotifyDialog(title: string, message: string, closeName : string){
     this.notifyDialog.open(NotifyDialogComponent, {
       data: {
@@ -69,5 +81,9 @@ export class BallotComponent implements OnInit {
         this.openNotifyDialog('Success!', BallotComponent.successMessage, 'OK');
       }
     });
+  }
+
+  getSortableOptions = function() : SortablejsOptions {
+    return {disabled : this.ballot.closed };
   }
 }

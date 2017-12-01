@@ -4,11 +4,11 @@
   </mat-card-title>
   <div>
     <p>
-      Drag the options into your preferred order, then submit!
+      {{getMessage()}}
     </p>
   </div>
   <div>
-    <mat-nav-list [sortablejs]="ballot.options">
+    <mat-nav-list [sortablejs]="ballot.options" [sortablejsOptions]="getSortableOptions()">
       <mat-list-item *ngFor="let option of ballot.options" [disableRipple]="true" [draggable]="true">
         <i class="material-icons md-dark">reorder</i>
         <span>
@@ -18,7 +18,7 @@
     </mat-nav-list>
   </div>
   <div style="margin-top:20px;">
-    <button mat-raised-button color="primary" (click)="submitBallot()">Submit Ballot</button>
+    <button mat-raised-button color="primary" (click)="submitBallot()" [disabled]="ballot.closed">Submit Ballot</button>
   </div>
 </mat-card>
 <loading *ngIf="showSpinner"></loading>
