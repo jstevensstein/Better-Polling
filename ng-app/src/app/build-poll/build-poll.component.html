@@ -6,7 +6,7 @@
   </mat-card-title>
   <form [formGroup]="pollForm" class="example-form" novalidate>
     <mat-vertical-stepper #stepper linear>
-      <mat-step [stepControl]="pollForm.get('title')" [editable]="!pollCreated" label="Set title">
+      <mat-step [stepControl]="pollForm.get('title')" [editable]="!pollCreated" label="Title">
         <mat-form-field class="example-full-width">
           <input matInput type="text" placeholder="Poll Title" formControlName="title" [errorStateMatcher]="errorStateMatcher">
           <mat-error *ngIf="pollForm.get('title').hasError('required')">
@@ -17,7 +17,7 @@
           <button mat-button matStepperNext>Next</button>
         </div>
       </mat-step>
-      <mat-step [stepControl]="pollForm.get('ownerEmail')" [editable]="!pollCreated" label="Enter your email">
+      <mat-step [stepControl]="pollForm.get('ownerEmail')" [editable]="!pollCreated" label="Your email">
         <mat-form-field class="example-full-width">
           <input matInput type="text" placeholder="Email" formControlName="ownerEmail" [errorStateMatcher]="errorStateMatcher">
           <mat-error *ngIf="pollForm.get('ownerEmail').hasError('required')">
@@ -32,7 +32,7 @@
           <button mat-button matStepperNext>Next</button>
         </div>
       </mat-step>
-      <mat-step [stepControl]="pollForm.get('pollOptions')" [editable]="!pollCreated"  label="Create options">
+      <mat-step [stepControl]="pollForm.get('pollOptions')" [editable]="!pollCreated"  label="Options">
         <build-options [parentFormGroup]="pollForm" [pollOptions]="pollForm.get('pollOptions')"  (keydown.enter)="$event.preventDefault()">
         </build-options>
         <div>
@@ -40,7 +40,7 @@
           <button mat-button matStepperNext>Next</button>
         </div>
       </mat-step>
-      <mat-step [stepControl]="pollForm.get('emailList')" [editable]="!pollCreated" label="Enter voters">
+      <mat-step [stepControl]="pollForm.get('emailList')" [editable]="!pollCreated" label="Voter emails">
         <mat-form-field class="example-full-width">
           <textarea matInput matTextareaAutosize matAutosizeMinRows="3" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="errorStateMatcher"></textarea>
           <mat-error *ngIf="pollForm.get('emailList').hasError('invalidEmails')">

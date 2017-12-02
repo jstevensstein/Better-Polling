@@ -1,10 +1,9 @@
 'use strict'
 
-
 var sha3_512 = require('js-sha3').sha3_512;
 var pollsRepo = require('./dataAccess/pollsRepository.js')
 var caritat = require('caritat');
-//var caritat = require('caritat');
+
 var Mailjet = require('node-mailjet').connect(
   process.env.MJ_APIKEY_PUBLIC,
   process.env.MJ_APIKEY_PRIVATE
@@ -27,28 +26,32 @@ function PollsService(){
         return `${BaseUrl}/ballot/${ballotId}?token=${generateBallotToken(ballotId)}`;
     }
 
-    function sendEmailForBallot(ballotId, email){
-        //use email as salt; this and the secret will provide enough security for our purposes
-
+    function sendEmailForBallot(ballotId, pollName, email){
         let ballotUrl = generateBallotUrl(ballotId);
         var options = {
             'Recipients': [{ Email: email }],
             'FromEmail': SenderAddress,
-            // Subject
-            'Subject': 'You have been invited to participate in a Better Poll!',
+            'Subject': pollName,
             // Body
-            'Text-part': 'Please vote at '  + ballotUrl,
-            'Html-part': '<h3>Please vote <a href="' + ballotUrl +'">here</a></h3>'
+            'Text-part':
+              `You have been invited to participate in the poll \'${pollName}\'.\n
+              Please vote at ${ballotUrl}`,
+
+            'Html-part':
+              `
+              You have been invited to participate in the poll
+              <b>${pollName}</b>.
+              Please vote <a href="${ballotUrl}">here</a>.`
         };
 
         var sendEmail = Mailjet.post('send');
 
         sendEmail.request(options)
             .then(function(response, body){
-                //console.log(response);
+
             })
             .catch(function(reason){
-                //console.log(reason);
+
             });
 
     }
@@ -62,7 +65,7 @@ function PollsService(){
                 ballotPromises.push(
                     pollsRepo.addBallot(pollId, email)
                     .then(function(ballotId){
-                        sendEmailForBallot(ballotId, email);
+                        sendEmailForBallot(ballotId, name, email);
                     })
                 );
             });
@@ -70,14 +73,13 @@ function PollsService(){
         });
     }
 
-    function sendWinnerEmail(winnerName, email){
+    function sendWinnerEmail(pollName, winnerName, email){
         var options = {
             'Recipients': [{ Email: email }],
             'FromEmail': SenderAddress,
-            // Subject
-            'Subject': 'Results Are In!',
+            'Subject': `${pollName} Results`,
             // Body
-            'Text-part': 'The winner of your Better Poll is ' + winnerName + '!'
+            'Text-part': `The winner of the poll is ${winnerName}.`
         };
 
         var sendEmail = Mailjet.post('send');
@@ -89,12 +91,11 @@ function PollsService(){
             .catch(function(reason){
                 //console.log(reason);
             });
-
     }
 
-    function sendWinnerEmails(winnerName, emails){
+    function sendWinnerEmails(pollName, winnerName, emails){
         emails.forEach(function(email){
-            sendWinnerEmail(winnerName, email);
+            sendWinnerEmail(pollName, winnerName, email);
         });
     }
 
@@ -138,7 +139,7 @@ function PollsService(){
             }).then(function(options){
                 winnerOption = options.find(function(elt){return elt.id == winnerId});
                 console.log('The winner is ' + winnerOption.name);
-                sendWinnerEmails(winnerOption.name, ballots.map(function(b){return b.email;}));
+                sendWinnerEmails(poll.name, winnerOption.name, ballots.map(function(b){return b.email;}));
             });
         });
     }

@@ -34,7 +34,7 @@ export class BallotComponent implements OnInit {
   }
 
   getToken(){
-    //refactor to get once if possible;
+    //todo: refactor to get once if possible;
     return this.route.snapshot.queryParamMap.get('token');
   }
 
