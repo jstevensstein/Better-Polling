@@ -1,7 +1,5 @@
 'use strict'
 
-require('@google-cloud/debug-agent').start();
-
 require('dotenv').config()
 
 var express = require('express');
@@ -15,6 +13,10 @@ var app = express();
 
 app.enable('trust proxy');
 
+var helmet = require('helmet');
+app.use(helmet());
+app.disable('x-powered-by');
+
 var whitelist = [process.env.ANGULAR_ORIGIN];
 var corsOptions = {
   origin: whitelist,
@@ -22,7 +24,7 @@ var corsOptions = {
 };
 
 var myCors = cors(corsOptions);
-app.use(cors());
+app.use(myCors);
 
 app.use(bodyParser.json());
 
