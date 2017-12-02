@@ -1,8 +1,9 @@
 import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChildren, Input } from '@angular/core';
 import {MatInputModule, MatInput, MatIconRegistry, MatStepperModule, MatProgressSpinner, MatStepper, MatDialog} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
-import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, ValidatorFn, AbstractControl, FormBuilder} from '@angular/forms';
+import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, ValidationErrors, AsyncValidatorFn, AbstractControl, FormBuilder} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
+import 'rxjs/Rx';
 import {PollService} from '../poll.service';
 import {Poll} from '../poll';
 import { NotifyDialogComponent } from '../notify-dialog.component';
@@ -14,15 +15,6 @@ export class GenericErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null): boolean {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
-}
-
-var emailListValidator : ValidatorFn = function(control: AbstractControl) {
-  let invalidEmails : string[] = (control.value as string)
-  .split(/\r|\n|;|,/)
-  .filter(function(email){
-    return email && !email.trim().match(EMAIL_REGEX);
-  });
-  return invalidEmails.length ? {'invalidEmails' : {emails: invalidEmails}} : null;
 }
 
 @Component({
@@ -50,17 +42,46 @@ export class BuildPollComponent implements OnInit {
 
   createForm(){
     this.pollForm = this.fb.group({
-      title : new FormControl('', Validators.required),
-      ownerEmail : new FormControl('', [Validators.required, Validators.email]),
-      emailList : new FormControl('', {
-        validators: [Validators.required, emailListValidator],
-        updateOn: 'blur'
-      }),
+      title : ['', Validators.required],
+      ownerEmail: ['', [Validators.required, Validators.email]],
+      emailList : [
+        ''
+      ],
       pollOptions: this.fb.array([
         new FormControl('Option 1'),
         new FormControl('Option 2')
       ])
     });
+
+    let emailListFormControl = this.pollForm.get('emailList')
+    let vc = emailListFormControl.valueChanges;
+
+    vc.subscribe(value =>{
+      if (!value){
+        emailListFormControl.setErrors({required:true});
+      }
+      else{
+        emailListFormControl.setErrors({waiting: true});
+      }
+    });
+
+    vc.debounceTime(1000)
+      .distinctUntilChanged()
+      .subscribe(value => {
+        if (!value){
+          emailListFormControl.setErrors({required:true});
+          return;
+        }
+        let invalidEmails : string[] = (value as string)
+          .split(/\r|\n|;|,/)
+          .filter(function(email){
+            return email && !email.trim().match(EMAIL_REGEX);
+          });
+        emailListFormControl.setErrors(
+          invalidEmails.length ? {invalidEmails : [invalidEmails]} : null
+        );
+
+      });
   }
 
   getEmails = function() : string[] {
@@ -70,7 +91,7 @@ export class BuildPollComponent implements OnInit {
 
   firstInvalidEmails = function() : string {
     let shown = 5;
-    let emails : string[] = this.pollForm.get('emailList').getError('invalidEmails').emails;
+    let emails : string[] = this.pollForm.get('emailList').getError('invalidEmails');
     let joined = emails.slice(0,shown).join(', ');
     if (emails.length > shown){
       joined += '...';
@@ -79,9 +100,6 @@ export class BuildPollComponent implements OnInit {
   }
 
   tryCreatePoll = function() : void {
-    if (!this.pollForm.valid){
-      return; //should immediately show validation issue with emails
-    }
     this.showSpinner = true;
     let pre = this.pollForm.value;
     let poll = new Poll(pre.title, pre.pollOptions,
@@ -92,12 +110,12 @@ export class BuildPollComponent implements OnInit {
         this.notifyDialog.open(NotifyDialogComponent, {
           data: {
             title: 'Uh Oh',
-            message: 'An unknown error occurred.',
+            message: res.error.message,
             closeName: 'Close'
           }
         });
       }
-      else{
+      else {
         this.pollCreated = true;
         this.stepper.next();
       }

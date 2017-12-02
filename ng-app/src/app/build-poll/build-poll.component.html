@@ -51,10 +51,10 @@
           </mat-error>
         </mat-form-field>
         <div style="margin-top:10px;">
-          <button mat-raised-button color="primary" (click)="tryCreatePoll()">Create Poll</button>
+          <button mat-raised-button color="primary" [disabled]="!pollForm.valid" (click)="tryCreatePoll()">Create Poll</button>
         </div>
       </mat-step>
-      <mat-step label="Done" [editable]="pollCreated" >
+      <mat-step label="Done">
         <p>
           Congratulations! You have successfully created a poll and sent out
           ballots.
