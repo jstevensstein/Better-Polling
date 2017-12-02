@@ -25,7 +25,7 @@
     "@angular/router": "^5.0.5",
     "angular-sortablejs": "^2.2.2",
     "core-js": "^2.4.1",
-    "rxjs": "^5.5.3",
+    "rxjs": "^5.5.2",
     "sortablejs": "^1.7.0",
     "zone.js": "^0.8.14"
   },
