@@ -72,14 +72,25 @@ export class BuildPollComponent implements OnInit {
           emailListFormControl.setErrors({required:true});
           return;
         }
-        let invalidEmails : string[] = (value as string)
+        let emails : string[] = (value as string)
           .split(/\r|\n|;|,/)
           .filter(function(email){
-            return email && !email.trim().match(EMAIL_REGEX);
+            return email;
+          })
+          .map(function(email){
+            return email.trim();
           });
+        let invalidEmails = emails.filter(function(email){
+          return !email.match(EMAIL_REGEX);
+        });
         emailListFormControl.setErrors(
-          invalidEmails.length ? {invalidEmails : [invalidEmails]} : null
+          invalidEmails.length ?
+            {invalidEmails : [invalidEmails]}
+          // : emails.length <= 1 ?
+          //   {tooFew : true}
+          : null
         );
+
 
       });
   }

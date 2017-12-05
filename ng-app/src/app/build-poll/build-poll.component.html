@@ -1,66 +1,77 @@
 <mat-card>
   <loading *ngIf="showSpinner">
   </loading>
-  <mat-card-title>
-    Build Your Poll
-  </mat-card-title>
-  <form [formGroup]="pollForm" class="example-form" novalidate>
-    <mat-vertical-stepper #stepper linear>
-      <mat-step [stepControl]="pollForm.get('title')" [editable]="!pollCreated" label="Title">
-        <mat-form-field class="example-full-width">
-          <input matInput type="text" placeholder="Poll Title" formControlName="title" [errorStateMatcher]="errorStateMatcher">
-          <mat-error *ngIf="pollForm.get('title').hasError('required')">
-            Please provide a title for your poll
-          </mat-error>
-        </mat-form-field>
-        <div>
-          <button mat-button matStepperNext>Next</button>
-        </div>
-      </mat-step>
-      <mat-step [stepControl]="pollForm.get('ownerEmail')" [editable]="!pollCreated" label="Your email">
-        <mat-form-field class="example-full-width">
-          <input matInput type="text" placeholder="Email" formControlName="ownerEmail" [errorStateMatcher]="errorStateMatcher">
-          <mat-error *ngIf="pollForm.get('ownerEmail').hasError('required')">
-            Please provide an email to manage your poll
-          </mat-error>
-          <mat-error *ngIf="!pollForm.get('ownerEmail').hasError('required') && pollForm.get('ownerEmail').hasError('email')">
-            Please enter a valid email address
-          </mat-error>
-        </mat-form-field>
-        <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button matStepperNext>Next</button>
-        </div>
-      </mat-step>
-      <mat-step [stepControl]="pollForm.get('pollOptions')" [editable]="!pollCreated"  label="Options">
-        <build-options [parentFormGroup]="pollForm" [pollOptions]="pollForm.get('pollOptions')"  (keydown.enter)="$event.preventDefault()">
-        </build-options>
-        <div>
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button matStepperNext>Next</button>
-        </div>
-      </mat-step>
-      <mat-step [stepControl]="pollForm.get('emailList')" [editable]="!pollCreated" label="Voter emails">
-        <mat-form-field class="example-full-width">
-          <textarea matInput matTextareaAutosize matAutosizeMinRows="3" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="errorStateMatcher"></textarea>
-          <mat-error *ngIf="pollForm.get('emailList').hasError('invalidEmails')">
-            The folowing are invalid emails: {{firstInvalidEmails()}}
-          </mat-error>
-          <mat-error *ngIf="pollForm.get('emailList').hasError('required')">
-            You can't create a poll without voters!
-          </mat-error>
-        </mat-form-field>
-        <div style="margin-top:10px;">
-          <button mat-raised-button color="primary" [disabled]="!pollForm.valid" (click)="tryCreatePoll()">Create Poll</button>
-        </div>
-      </mat-step>
-      <mat-step label="Done">
-        <p>
-          Congratulations! You have successfully created a poll and sent out
-          ballots. When all of the responses are in, we will broadcast the 
-          winner.
-        </p>
-      </mat-step>
-    </mat-vertical-stepper>
-  </form>
+  <ng-container *ngIf="!this.pollCreated; else poll_created">
+    <mat-card-title>
+      Build Your Poll
+    </mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="pollForm" class="example-form" novalidate >
+        <mat-vertical-stepper #stepper linear>
+          <mat-step [stepControl]="pollForm.get('title')" [editable]="!pollCreated" label="Title">
+            <mat-form-field class="example-full-width">
+              <input matInput type="text" placeholder="Poll Title" formControlName="title" [errorStateMatcher]="errorStateMatcher">
+              <mat-error *ngIf="pollForm.get('title').hasError('required')">
+                Please provide a title for your poll
+              </mat-error>
+            </mat-form-field>
+            <div style="display:none;">
+              <button mat-button matStepperNext>Next</button>
+            </div>
+          </mat-step>
+          <mat-step [stepControl]="pollForm.get('ownerEmail')" [editable]="!pollCreated" label="Your email">
+            <mat-form-field class="example-full-width">
+              <input matInput type="text" placeholder="Email" formControlName="ownerEmail" [errorStateMatcher]="errorStateMatcher">
+              <mat-error *ngIf="pollForm.get('ownerEmail').hasError('required')">
+                Please provide an email to manage your poll
+              </mat-error>
+              <mat-error *ngIf="!pollForm.get('ownerEmail').hasError('required') && pollForm.get('ownerEmail').hasError('email')">
+                Please enter a valid email address
+              </mat-error>
+            </mat-form-field>
+            <div style="display:none;">
+              <button mat-button matStepperNext>Next</button>
+            </div>
+          </mat-step>
+          <mat-step [stepControl]="pollForm.get('pollOptions')" [editable]="!pollCreated"  label="Options">
+            <build-options [parentFormGroup]="pollForm" [pollOptions]="pollForm.get('pollOptions')"  (keydown.enter)="$event.preventDefault()">
+            </build-options>
+            <div hidden>
+              <button mat-button matStepperNext>Next</button>
+            </div>
+          </mat-step>
+          <mat-step [stepControl]="pollForm.get('emailList')" [editable]="!pollCreated" label="Voter emails">
+            <mat-form-field class="example-full-width">
+              <textarea matInput matTextareaAutosize matAutosizeMinRows="3" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="errorStateMatcher"></textarea>
+              <mat-error *ngIf="pollForm.get('emailList').hasError('waiting')">
+                processing&hellip;
+              </mat-error>
+              <mat-error *ngIf="pollForm.get('emailList').hasError('invalidEmails')">
+                The folowing are invalid emails: {{firstInvalidEmails()}}
+              </mat-error>
+              <mat-error *ngIf="pollForm.get('emailList').hasError('tooFew')">
+                You must have at least two voters!
+              </mat-error>
+              <mat-error *ngIf="pollForm.get('emailList').hasError('required')">
+                You can't create a poll without voters!
+              </mat-error>
+            </mat-form-field>
+            <div style="margin-top:10px;">
+              <button mat-raised-button color="primary" [disabled]="!pollForm.valid" (click)="tryCreatePoll()">Create Poll</button>
+            </div>
+          </mat-step>
+        </mat-vertical-stepper>
+      </form>
+    </mat-card-content>
+  </ng-container>
+  <ng-template #poll_created>
+    <mat-card-title>
+      Congratulations!
+    </mat-card-title>
+    <mat-card-content class="mat-body-1">
+        You have successfully created a poll and sent out
+        ballots. When all of the responses are in, we will broadcast the
+        winner.
+    </mat-card-content>
+  </ng-template>
 </mat-card>
