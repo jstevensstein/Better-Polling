@@ -18,12 +18,20 @@ function PollsService(){
         return token == generateBallotToken(ballotId);
     }
 
-    function generateBallotToken(ballotId){
-        return sha3_512(ballotId + Secret);
+    function generateBallotToken(id){
+        return sha3_512(`ballot${id}${Secret}`);
     }
 
-    function generateBallotUrl(ballotId){
-        return `${BaseUrl}/ballot/${ballotId}?token=${generateBallotToken(ballotId)}`;
+    function generateBallotUrl(id){
+        return `${BaseUrl}/ballot/${id}?token=${generateBallotToken(id)}`;
+    }
+
+    function generatePollToken(id){
+        return sha3_512(`poll${id}${Secret}`);
+    }
+
+    function generatePollUrl(id){
+        return `${BaseUrl}/poll/${id}?token=${generatePollToken(id)}`;
     }
 
     function sendEmailForBallot(ballotId, pollName, email){
@@ -56,6 +64,35 @@ function PollsService(){
 
     }
 
+    function sendEmailForPoll(pollId, pollName, email){
+        let pollUrl = generatePollUrl(pollId);
+        var options = {
+            'Recipients': [{ Email: email }],
+            'FromEmail': SenderAddress,
+            'Subject': `${pollName} management`,
+            // Body
+            'Text-part':
+              `You have successfully created the poll \'${pollName}\'.\n
+              You can manage your poll at ${pollUrl}`,
+
+            'Html-part':
+              `
+              You have successfully created the poll
+              <b>${pollName}</b>.
+              You can manage your poll <a href="${pollUrl}">here</a>.`
+        };
+
+        var sendEmail = Mailjet.post('send');
+
+        sendEmail.request(options)
+            .then(function(response, body){
+
+            })
+            .catch(function(reason){
+
+            });
+    }
+
     this.createPollAndBallotsAndSendEmails = function(name, owner, choices, emails){
         return pollsRepo.createPoll(name, owner, choices)
         .then(function(id){
@@ -69,6 +106,7 @@ function PollsService(){
                     })
                 );
             });
+            sendEmailForPoll(id, name, owner);
             return Promise.all(ballotPromises);
         });
     }

@@ -20,6 +20,7 @@ import { BallotComponent } from './ballot/ballot.component';
 import { LoadingComponent} from './loading/loading.component';
 
 import { environment } from '../environments/environment';
+import { PollComponent } from './poll/poll.component';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { environment } from '../environments/environment';
     BuildPollComponent,
     IndexComponent,
     BallotComponent,
-    LoadingComponent
+    LoadingComponent,
+    PollComponent
   ],
   imports: [
     BrowserModule,
