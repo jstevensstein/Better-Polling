@@ -1,1 +1,5 @@
 # Better-Polling
+
+This site was created to help users overcome the [issues](https://en.wikipedia.org/wiki/First-past-the-post_voting#Criticisms) present in [first-past-the-post voting](https://en.wikipedia.org/wiki/First-past-the-post_voting), the voting method prevalent in simple polls and, notoriously, American politics. We allow for the secure creation and distribution of ballots to voters by email. Voters may then rank candidates or options in their order of preference, rather than choosing a single one. When the poll closes, we determine the winner using such methods as the [Condorcet method](https://en.wikipedia.org/wiki/Condorcet_method) and [instant runoffs](https://en.wikipedia.org/wiki/Instant-runoff_voting).
+
+Please, [enjoy and develop a better consensus](https://jstevensstein.github.io/Better-Polling/).
