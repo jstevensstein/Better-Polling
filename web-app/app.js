@@ -183,6 +183,8 @@ app.post('/closePoll/:id/', function(req, res){
   PollsService.tryClosePollOfId(id)
   .then(function(winner){
     res.json({winner: winner});
+  }, function(reason){
+    writeGenericError(res);
   });
 });
 
