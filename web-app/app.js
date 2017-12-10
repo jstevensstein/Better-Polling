@@ -89,6 +89,28 @@ app.post('/createpoll', function(req, res){
   }
 });
 
+app.get('/poll/:id', function(req, res){
+  var id = req.params.id;
+  var token = req.query.token;
+  if (!id || !token){
+    writeGenericError(res);
+    return;
+  }
+  if (PollsService.validateBallotToken(id, token)){
+    pollsRepo.getPollById(id).then(function(poll){
+      return poll.toModel();
+    })
+    .then(function(pollModel){
+      res.json({poll: pollModel});
+    }, function(reason){
+      writeGenericError(res);
+    })
+  }
+  else{
+    res.json({error: {message: "You are not authorized to view this poll."}});
+  }
+});
+
 app.get('/ballot/:id', function(req, res){
   var id = req.params.id;
   var token = req.query.token;
@@ -104,7 +126,7 @@ app.get('/ballot/:id', function(req, res){
       res.json({ballot: ballotModel});
     },
     function(reason){
-      res.json({error: {message: GENERIC_ERROR_MESSAGE}})
+      writeGenericError(res);
     });
   }
   else{
@@ -136,7 +158,6 @@ app.post('/ballot/:id/', function(req, res){
     }
     else {
       var order = req.body.order;
-
       return pollsRepo.submitBallot(id, order)
       .then(function(){
         res.json({});
@@ -144,7 +165,7 @@ app.post('/ballot/:id/', function(req, res){
       });
     }
   }, function(reason){
-    res.json({error: {message: GENERIC_ERROR_MESSAGE}})
+      writeGenericError(res);
   });
 });
 
