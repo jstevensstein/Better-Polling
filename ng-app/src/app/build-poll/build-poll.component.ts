@@ -113,8 +113,7 @@ export class BuildPollComponent implements OnInit {
   tryCreatePoll = function() : void {
     this.showSpinner = true;
     let pre = this.pollForm.value;
-    let poll = new Poll(pre.title, pre.pollOptions,
-      this.getEmails(), pre.ownerEmail);
+    let poll = new Poll(pre.title, pre.pollOptions, this.getEmails(), pre.ownerEmail);
     let res = this.pollService.upsertPoll(poll).subscribe((res) => {
       this.showSpinner = false;
       if (!res || res.error){

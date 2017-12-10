@@ -26,6 +26,10 @@ function PollsService(){
         return `${BaseUrl}/ballot/${id}?token=${generateBallotToken(id)}`;
     }
 
+    this.validatePollToken = function(pollId, token){
+        return token == generatePollToken(pollId);
+    }
+
     function generatePollToken(id){
         return sha3_512(`poll${id}${Secret}`);
     }
@@ -137,22 +141,22 @@ function PollsService(){
         });
     }
 
-    this.determineWinnerAndSendEmailIfBallotsComplete = function(pollId){
-        var poll;
+    function tryClosePoll(poll, needAllBallots = false){
+        if (poll.winner){
+          return Promise.resolve(false);
+        }
         var winnerId;
         var winnerOption;
         var ballots;
-        return pollsRepo.getPollById(pollId).then(function(p){
-            poll = p;
-            return pollsRepo.getBallotsForPoll(pollId)
-        }).then(function(b){
+        return pollsRepo.getBallotsForPoll(poll.id)
+        .then(function(b){
             ballots = b;
-            if (ballots.some(function(ballot){return !ballot.complete;})){
+            if (needAllBallots && ballots.some(function(ballot){return !ballot.complete;})){
                 console.log('There are incomplete ballots!')
                 return;
             }
             console.log('Calculating the winner and sending results because all ballots are complete');
-            return Promise.all(ballots.map(b => b.choices))
+            return Promise.all(ballots.filter(b => b.complete).map(b => b.choices))
             .then(function(ballotsChoices){
                 let candidates = [];
                 for (let i = 0; i<ballotsChoices[0].length; i++){
@@ -178,9 +182,18 @@ function PollsService(){
                 winnerOption = options.find(function(elt){return elt.id == winnerId});
                 console.log('The winner is ' + winnerOption.name);
                 sendWinnerEmails(poll.name, winnerOption.name, ballots.map(function(b){return b.email;}));
+                return winnerOption.name;
             });
         });
     }
+
+    this.tryClosePollOfId = function(id, needAllBallots = false){
+      return pollsRepo.getPollById(id)
+      .then(function(poll){
+        return tryClosePoll(poll, needAllBallots);
+      });
+    }
+
 }
 
 module.exports = new PollsService();

@@ -25,6 +25,14 @@ export class PollService {
     );
   }
 
+  getPoll(id: number, token: string) : Observable<any> {
+    let url = `${this.apiOrigin}/poll/${id}?token=${token}`;
+    return this.http.get<Poll>(url).pipe(
+      tap(_ => console.log(`fetched poll id=${id}`)),
+      catchError(this.handleError<Poll>(`getPoll id=${id}`))
+    );
+  }
+
   getBallot(id: number, token: string) : Observable<any> {
     let url = `${this.apiOrigin}/ballot/${id}?token=${token}`;
     return this.http.get<Ballot>(url).pipe(
@@ -38,6 +46,13 @@ export class PollService {
     return this.http.post<any>(url, {order: order}, httpOptions).pipe(
       tap(() => console.log(`upserted ballot choices`)),
       catchError(this.handleError<any>('upsertBallotChoices'))
+    );
+  }
+
+  closePoll(id: number, token: string) : Observable<any> {
+    return this.http.post<any>(`${this.apiOrigin}/closePoll/${id}?token=${token}`, httpOptions).pipe(
+      tap(() => console.log(`closed poll`)),
+      catchError(this.handleError<any>('addPoll'))
     );
   }
 

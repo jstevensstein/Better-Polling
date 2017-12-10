@@ -7,7 +7,7 @@ class Poll{
         this.owner = owner;
         this.closed = closed;
         this.options_ = undefined;
-        this.ballot_ = undefined;
+        this.ballots_ = undefined;
     }
 
     get options(){
@@ -19,7 +19,7 @@ class Poll{
     }
 
     get ballots(){
-      return pollsRepo.getBallotsForPoll(id).bind(this)
+      return pollsRepo.getBallotsForPoll(this.id).bind(this)
       .then(function(ballots){
         this.ballots_ = ballots;
         return this.ballots_;
@@ -34,12 +34,13 @@ class Poll{
       })
       .then(function(){
         return {
-            id: this.id,
-            name: this.name,
-            closed: this.closed,
-            options: this._options,
-            ballots:
-              this._ballots.map(b => {email = b.email, complete = b.complete})
+          id: this.id,
+          name: this.name,
+          closed: this.closed,
+          options: this.options_.map(c => c.name),
+          ballots: this.ballots_.map(b => {
+            return {email: b.email, complete: b.complete};
+          })
         }
       });
     }

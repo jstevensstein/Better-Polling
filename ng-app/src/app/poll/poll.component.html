@@ -1,3 +1,23 @@
-<p>
-  poll works!
-</p>
+<mat-card *ngIf="poll">
+  <mat-card-title>
+    Manage {{poll.name}}
+  </mat-card-title>
+  <mat-card-subtitle>
+    Poll Options
+  </mat-card-subtitle>
+  <mat-list-item *ngFor="let options of poll.options" >
+    {{options}}
+  </mat-list-item>
+  <br/>
+  <mat-card-subtitle>
+    Poll Recipients
+  </mat-card-subtitle>
+  <mat-list-item *ngFor="let ballot of poll.ballots" >
+    {{ballot.email}}
+  </mat-list-item>
+  <br/>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="closePoll()" >Close Poll</button>
+  </mat-card-actions>
+</mat-card>
+<loading *ngIf="showSpinner"></loading>

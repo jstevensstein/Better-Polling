@@ -60,7 +60,7 @@ app.post('/createpoll', function(req, res){
     let invalidEmails = emails.filter(function(_, index){
       return !match[index];
     });
-    let choices = req.body.choices;
+    let choices = req.body.options;
     if (!choices || choices.length < 2){
       writeGenericError(res);
       return;
@@ -96,7 +96,7 @@ app.get('/poll/:id', function(req, res){
     writeGenericError(res);
     return;
   }
-  if (PollsService.validateBallotToken(id, token)){
+  if (PollsService.validatePollToken(id, token)){
     pollsRepo.getPollById(id).then(function(poll){
       return poll.toModel();
     })
@@ -161,11 +161,28 @@ app.post('/ballot/:id/', function(req, res){
       return pollsRepo.submitBallot(id, order)
       .then(function(){
         res.json({});
-        PollsService.determineWinnerAndSendEmailIfBallotsComplete(ballot.pollId);
+        PollsService.tryClosePollOfId(ballot.pollId, true);
       });
     }
   }, function(reason){
       writeGenericError(res);
+  });
+});
+
+app.post('/closePoll/:id/', function(req, res){
+  var id = req.params.id;
+  var token = req.query.token;
+  if (!id || !token){
+    writeGenericError(res);
+    return;
+  }
+  if (!PollsService.validatePollToken(id, token)){
+    res.json({error: {message: "You are not authorized to close this poll."}});
+    return;
+  }
+  PollsService.tryClosePollOfId(id)
+  .then(function(winner){
+    res.json({winner: winner});
   });
 });
 
