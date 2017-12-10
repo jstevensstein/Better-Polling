@@ -2,6 +2,10 @@
 
 require('dotenv').config()
 
+if (process.env.GOOGLE_CLOUD.toLowerCase() === 'true'){
+  require('@google-cloud/debug-agent').start();
+}
+
 var express = require('express');
 var bodyParser = require('body-parser')
 var cors = require('cors');
