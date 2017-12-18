@@ -151,6 +151,9 @@ function PollsService(){
         return pollsRepo.getBallotsForPoll(poll.id)
         .then(function(b){
             ballots = b;
+            if(!ballots.some(b => b.complete)){
+                return Promise.reject({userMessage: "There are no complete ballots. The poll cannot be closed."});
+            }
             if (needAllBallots && ballots.some(function(ballot){return !ballot.complete;})){
                 console.log('There are incomplete ballots!')
                 return;

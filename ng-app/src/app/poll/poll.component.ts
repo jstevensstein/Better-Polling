@@ -35,6 +35,9 @@ export class PollComponent implements OnInit {
     let id = parseInt(this.route.snapshot.paramMap.get('id'));
     this.pollService.getPoll(id, this.getToken()).subscribe(res => {
       this.poll = res.poll as Poll;
+      this.poll.ballots.sort(function(a,b){
+        return (a.email > b.email) ? 1 : ((b.email > a.email) ? -1 : 0);
+      })
       this.showSpinner = false;
     });
   }

@@ -2,12 +2,13 @@
 
 require('dotenv').config()
 
-if (process.env.GOOGLE_CLOUD.toLowerCase() === 'true'){
+let googleCloud = process.env.GOOGLE_CLOUD;
+if (googleCloud && (googleCloud.toLowerCase() === 'true')){
   require('@google-cloud/debug-agent').start();
 }
 
 var express = require('express');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var cors = require('cors');
 
 var PollsService = require('./pollsService.js');
@@ -188,6 +189,10 @@ app.post('/closePoll/:id/', function(req, res){
   .then(function(winner){
     res.json({winner: winner});
   }, function(reason){
+    if (reason.userMessage){
+      res.json({error:{message: reason.userMessage}});
+      return;
+    }
     writeGenericError(res);
   });
 });
