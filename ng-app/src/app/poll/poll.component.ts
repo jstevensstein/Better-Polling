@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material';
 import { NotifyDialogComponent } from '../notify-dialog.component';
+import { AddRecipientsDialogComponent } from '../add-recipients-dialog/add-recipients-dialog.component';
 
 import { PollService } from '../poll.service';
 import { Poll } from '../poll';
@@ -20,7 +21,8 @@ export class PollComponent implements OnInit {
     private route: ActivatedRoute,
     private pollService: PollService,
     private location: Location,
-    public notifyDialog: MatDialog
+    public notifyDialog: MatDialog,
+    public addRecipientsDialog : MatDialog
   ) {}
 
   ngOnInit() {
@@ -39,6 +41,13 @@ export class PollComponent implements OnInit {
         return (a.email > b.email) ? 1 : ((b.email > a.email) ? -1 : 0);
       })
       this.showSpinner = false;
+    });
+  }
+
+  openAddRecipientsDialog() : void {
+    this.addRecipientsDialog.open(AddRecipientsDialogComponent, {})
+    .afterClosed().subscribe(result => {
+      //add recipients not among existing ballots
     });
   }
 

@@ -17,7 +17,8 @@
   </mat-list-item>
   <br/>
   <mat-card-actions>
-    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="closePoll()" >Close Poll</button>
+    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="closePoll()">Close Poll</button>
+    <button mat-raised-button color="primary" [disabled] (click)="openAddRecipientsDialog()">Add Recipients</button>
   </mat-card-actions>
 </mat-card>
 <loading *ngIf="showSpinner"></loading>

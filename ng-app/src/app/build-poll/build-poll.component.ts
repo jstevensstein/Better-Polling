@@ -2,20 +2,16 @@ import { Component, ViewChild, ElementRef, Directive, OnInit, QueryList, ViewChi
 import {MatInputModule, MatInput, MatIconRegistry, MatStepperModule, MatProgressSpinner, MatStepper, MatDialog} from '@angular/material';
 import {DomSanitizer} from '@angular/platform-browser';
 import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators, ValidationErrors, AsyncValidatorFn, AbstractControl, FormBuilder} from '@angular/forms';
-import {ErrorStateMatcher} from '@angular/material/core';
 import 'rxjs/Rx';
+
+import {EmailUtilityService} from '../email-utility.service';
 import {PollService} from '../poll.service';
 import {Poll} from '../poll';
 import { NotifyDialogComponent } from '../notify-dialog.component';
 import { LoadingComponent } from '../loading/loading.component';
 import { catchError, map, tap } from 'rxjs/operators';
 import { EMAIL_REGEX } from '../../../../shared/globals';
-
-export class GenericErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null): boolean {
-    return !!(control && control.invalid && (control.dirty || control.touched));
-  }
-}
+import {GenericErrorStateMatcher} from '../generic-error-state-matcher';
 
 @Component({
   selector: 'app-build-poll',
@@ -32,6 +28,7 @@ export class BuildPollComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private emailUtility : EmailUtilityService,
     private pollService : PollService,
     public notifyDialog: MatDialog
   ){}
@@ -44,9 +41,7 @@ export class BuildPollComponent implements OnInit {
     this.pollForm = this.fb.group({
       title : ['', Validators.required],
       ownerEmail: ['', [Validators.required, Validators.email]],
-      emailList : [
-        ''
-      ],
+      emailList : [''],
       pollOptions: this.fb.array([
         new FormControl('Option 1'),
         new FormControl('Option 2')
@@ -55,10 +50,10 @@ export class BuildPollComponent implements OnInit {
   }
 
   getEmails = function() : string[] {
-    return this.pollForm.get('emailList').value
-      .split(/\r|\n|;|,/).filter(e => e).map(e => e.trim());
+    //no need to validate because we cannot hit this function without the
+    //form (and hence all potential emails) being well-formed
+    return this.emailUtility.parsePotentialEmails(this.pollForm.get('emailList').value);
   }
-  //TODO: consolidate with email-list-field-component.ts def
 
   tryCreatePoll = function() : void {
     this.showSpinner = true;

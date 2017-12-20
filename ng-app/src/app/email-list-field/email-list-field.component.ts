@@ -3,7 +3,8 @@ import 'rxjs/Rx';
 import {FormControl, FormGroup} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 
-import { EMAIL_REGEX } from '../../../../shared/globals';
+import {GenericErrorStateMatcher} from '../generic-error-state-matcher';
+import {EmailUtilityService} from '../email-utility.service';
 
 
 @Component({
@@ -16,32 +17,37 @@ export class EmailListFieldComponent implements OnInit {
   @Input() parentFormGroup: FormGroup;
   @Input() emailListFormControl : FormControl;
   @Input() errorStateMatcher : ErrorStateMatcher;
+  @Input() newPoll : boolean = true;
 
-  constructor() { }
+  constructor(private emailUtility : EmailUtilityService) { }
 
   ngOnInit() {
+    this.errorStateMatcher = this.errorStateMatcher || new GenericErrorStateMatcher();
+
     let vc = this.emailListFormControl.valueChanges;
 
     vc.subscribe(value =>{
-      if (!value){
-        this.emailListFormControl.setErrors({required:true});
+      if(value){
+        this.emailListFormControl.setErrors({waiting: true});
       }
       else{
-        this.emailListFormControl.setErrors({waiting: true});
+        if (this.newPoll){
+          this.emailListFormControl.setErrors({required:true});
+        }
+        else{
+          this.emailListFormControl.setErrors(null);
+        }
       }
     });
 
     vc.debounceTime(1000)
       .distinctUntilChanged()
       .subscribe(value => {
-        if (!value){
+        if (this.newPoll && !value){
           this.emailListFormControl.setErrors({required:true});
           return;
         }
-        let emails : string[] = this.getEmails();
-        let invalidEmails = emails.filter(function(email){
-          return !email.match(EMAIL_REGEX);
-        });
+        let invalidEmails = this.emailUtility.parseInvalidEmails(value);
         this.emailListFormControl.setErrors(
           invalidEmails.length ?
             {invalidEmails : [invalidEmails]}
@@ -50,10 +56,6 @@ export class EmailListFieldComponent implements OnInit {
           : null
         );
       });
-  }
-  getEmails() : string[] {
-    return this.emailListFormControl.value
-      .split(/\r|\n|;|,/).filter(e => e).map(e => e.trim());
   }
 
   firstInvalidEmails() : string {
