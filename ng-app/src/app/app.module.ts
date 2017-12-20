@@ -21,6 +21,7 @@ import { LoadingComponent} from './loading/loading.component';
 
 import { environment } from '../environments/environment';
 import { PollComponent } from './poll/poll.component';
+import { EmailListFieldComponent } from './email-list-field/email-list-field.component';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { PollComponent } from './poll/poll.component';
     IndexComponent,
     BallotComponent,
     LoadingComponent,
-    PollComponent
+    PollComponent,
+    EmailListFieldComponent
   ],
   imports: [
     BrowserModule,

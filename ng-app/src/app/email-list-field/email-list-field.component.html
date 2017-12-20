@@ -1,0 +1,15 @@
+<mat-form-field class="example-full-width" [formGroup]="parentFormGroup">
+  <textarea matInput matTextareaAutosize matAutosizeMinRows="3" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="errorStateMatcher"></textarea>
+  <mat-error *ngIf="emailListFormControl.hasError('waiting')">
+    processing&hellip;
+  </mat-error>
+  <mat-error *ngIf="emailListFormControl.hasError('invalidEmails')">
+    The folowing are invalid emails: {{firstInvalidEmails()}}
+  </mat-error>
+  <mat-error *ngIf="emailListFormControl.hasError('tooFew')">
+    You must have at least two voters!
+  </mat-error>
+  <mat-error *ngIf="emailListFormControl.hasError('required')">
+    You can't create a poll without voters!
+  </mat-error>
+</mat-form-field>

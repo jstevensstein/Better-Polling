@@ -52,63 +52,13 @@ export class BuildPollComponent implements OnInit {
         new FormControl('Option 2')
       ])
     });
-
-    let emailListFormControl = this.pollForm.get('emailList')
-    let vc = emailListFormControl.valueChanges;
-
-    vc.subscribe(value =>{
-      if (!value){
-        emailListFormControl.setErrors({required:true});
-      }
-      else{
-        emailListFormControl.setErrors({waiting: true});
-      }
-    });
-
-    vc.debounceTime(1000)
-      .distinctUntilChanged()
-      .subscribe(value => {
-        if (!value){
-          emailListFormControl.setErrors({required:true});
-          return;
-        }
-        let emails : string[] = (value as string)
-          .split(/\r|\n|;|,/)
-          .filter(function(email){
-            return email;
-          })
-          .map(function(email){
-            return email.trim();
-          });
-        let invalidEmails = emails.filter(function(email){
-          return !email.match(EMAIL_REGEX);
-        });
-        emailListFormControl.setErrors(
-          invalidEmails.length ?
-            {invalidEmails : [invalidEmails]}
-          // : emails.length <= 1 ?
-          //   {tooFew : true}
-          : null
-        );
-
-
-      });
   }
 
   getEmails = function() : string[] {
     return this.pollForm.get('emailList').value
-      .split(/\r|\n|;|,/).map(e => e.trim());
+      .split(/\r|\n|;|,/).filter(e => e).map(e => e.trim());
   }
-
-  firstInvalidEmails = function() : string {
-    let shown = 5;
-    let emails : string[] = this.pollForm.get('emailList').getError('invalidEmails');
-    let joined = emails.slice(0,shown).join(', ');
-    if (emails.length > shown){
-      joined += '...';
-    }
-    return joined;
-  }
+  //TODO: consolidate with email-list-field-component.ts def
 
   tryCreatePoll = function() : void {
     this.showSpinner = true;
@@ -117,10 +67,11 @@ export class BuildPollComponent implements OnInit {
     let res = this.pollService.upsertPoll(poll).subscribe((res) => {
       this.showSpinner = false;
       if (!res || res.error){
+        let message = res ? res.error : "An unexpected error occured."
         this.notifyDialog.open(NotifyDialogComponent, {
           data: {
             title: 'Uh Oh',
-            message: res.error.message,
+            message: message,
             closeName: 'Close'
           }
         });
@@ -131,5 +82,4 @@ export class BuildPollComponent implements OnInit {
       }
     });
   }
-
 }
