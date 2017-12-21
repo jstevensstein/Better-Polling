@@ -37,7 +37,7 @@ export class PollService {
     let url = `${this.apiOrigin}/ballot/${id}?token=${token}`;
     return this.http.get<Ballot>(url).pipe(
       tap(_ => console.log(`fetched ballot id=${id}`)),
-      catchError(this.handleError<Ballot>(`getPoll id=${id}`))
+      catchError(this.handleError<Ballot>(`getBallot id=${id}`))
     );
   }
 
@@ -52,7 +52,15 @@ export class PollService {
   closePoll(id: number, token: string) : Observable<any> {
     return this.http.post<any>(`${this.apiOrigin}/closePoll/${id}?token=${token}`, httpOptions).pipe(
       tap(() => console.log(`closed poll`)),
-      catchError(this.handleError<any>('addPoll'))
+      catchError(this.handleError<any>('closePoll'))
+    );
+  }
+
+  addRecipients(id: number, token: string, emails: string[]) : Observable<any> {
+    let url = `${this.apiOrigin}/addRecipients/${id}?token=${token}`;
+    return this.http.post<any>(url, {emails: emails}, httpOptions).pipe(
+      tap(() => console.log(`added recipients`)),
+      catchError(this.handleError<any>('addRecipients'))
     );
   }
 

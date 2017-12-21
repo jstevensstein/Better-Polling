@@ -46,8 +46,51 @@ export class PollComponent implements OnInit {
 
   openAddRecipientsDialog() : void {
     this.addRecipientsDialog.open(AddRecipientsDialogComponent, {})
-    .afterClosed().subscribe(result => {
-      //add recipients not among existing ballots
+    .afterClosed().subscribe(emails => {
+      if (emails){
+        let newEmails = emails.filter(email => !this.poll.ballots.some(b => b.email === email));
+        if (newEmails.length){
+          this.addRecipients(emails);
+        }
+        else{
+          this.notifyDialog.open(NotifyDialogComponent, {
+            data: {
+              title: 'Duplicate Emails',
+              message: 'There are no new recipient emails.',
+              closeName: 'Close'
+            }
+          });
+        }
+      }
+    });
+  }
+
+  addRecipients(emails: string[]) : void {
+    this.showSpinner = true;
+    let res = this.pollService.addRecipients(this.poll.id, this.getToken(), emails)
+    .subscribe((res) => {
+      this.showSpinner = false;
+      if (!res || res.error){
+        this.notifyDialog.open(NotifyDialogComponent, {
+          data: {
+            title: 'Uh Oh',
+            message: res.error.message,
+            closeName: 'Close'
+          }
+        });
+      }
+      else {
+        this.notifyDialog.open(NotifyDialogComponent, {
+          data: {
+            title: 'Success',
+            message: 'You have successfully added more ballot recipients!',
+            closeName: 'OK'
+          }
+        });
+        emails.forEach(email => {
+          this.poll.ballots.push({email: email, complete: false});
+        })
+      }
     });
   }
 

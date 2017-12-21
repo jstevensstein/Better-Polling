@@ -84,24 +84,35 @@ function PollsService(){
         return sendEmail.request(options);
     }
 
+    this.createBallotsAndSendEmails = function(pollId, emails, name){
+      let namePromise = name ?
+        Promise.resolve() :
+        pollsRepo.getPollById(pollId).then(function(poll){
+          name = poll.name;
+        });
+      return namePromise.then(function(){
+        let ballotPromises = [];
+        emails.forEach(function(email){
+            ballotPromises.push(
+                pollsRepo.addBallot(pollId, email)
+                .then(function(ballotId){
+                    sendEmailForBallot(ballotId, name, email)
+                    .catch(function(reason){
+                        pollsRepo.updateBallot(ballotId, {delivered: false});
+                    });
+                })
+            );
+        });
+        return Promise.all(ballotPromises);
+      });
+    }
+
     this.createPollAndBallotsAndSendEmails = function(name, owner, choices, emails){
-        return pollsRepo.createPoll(name, owner, choices)
+        return pollsRepo.createPoll(name, owner, choices).bind(this)
         .then(function(id){
-            let pollId = id;
-            let ballotPromises = [];
-            emails.forEach(function(email){
-                ballotPromises.push(
-                    pollsRepo.addBallot(pollId, email)
-                    .then(function(ballotId){
-                        sendEmailForBallot(ballotId, name, email)
-                        .catch(function(reason){
-                            pollsRepo.updateBallot(ballotId, {delivered: false});
-                        });
-                    })
-                );
-            });
+            let ballotsPromise = this.createBallotsAndSendEmails(id, emails, name);
             sendEmailForPoll(id, name, owner);
-            return Promise.all(ballotPromises);
+            return ballotsPromise;
         });
     }
 
