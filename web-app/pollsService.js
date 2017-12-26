@@ -177,7 +177,7 @@ function PollsService(){
             }).then(function(options){
                 winnerOption = options.find(function(elt){return elt.id == winnerId});
                 sendWinnerEmails(poll.name, winnerOption.name, ballots.map(function(b){return b.email;}));
-                return winnerOption.name;
+                return winnerId;
             });
         });
     }

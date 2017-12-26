@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
+import { PollPostModel } from './models/pollPostModel';
+import { PollViewModel } from './models/pollViewModel';
 import { Poll } from './poll';
 import { Ballot } from './ballot';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -18,7 +20,7 @@ export class PollService {
 
   constructor(private http : HttpClient) { }
 
-  upsertPoll(poll: Poll) : Observable<any> {
+  upsertPoll(poll: PollPostModel) : Observable<any> {
     return this.http.post<any>(`${this.apiOrigin}/createPoll`, poll, httpOptions).pipe(
       tap(() => console.log(`added poll`)),
       catchError(this.handleError<any>('addPoll'))
@@ -27,9 +29,9 @@ export class PollService {
 
   getPoll(id: number, token: string) : Observable<any> {
     let url = `${this.apiOrigin}/poll/${id}?token=${token}`;
-    return this.http.get<Poll>(url).pipe(
+    return this.http.get<PollViewModel>(url).pipe(
       tap(_ => console.log(`fetched poll id=${id}`)),
-      catchError(this.handleError<Poll>(`getPoll id=${id}`))
+      catchError(this.handleError<PollViewModel>(`getPoll id=${id}`))
     );
   }
 

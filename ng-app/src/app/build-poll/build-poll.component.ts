@@ -6,7 +6,7 @@ import 'rxjs/Rx';
 
 import {EmailUtilityService} from '../email-utility.service';
 import {PollService} from '../poll.service';
-import {Poll} from '../poll';
+import {PollPostModel} from '../models/pollPostModel';
 import { NotifyDialogComponent } from '../notify-dialog.component';
 import { LoadingComponent } from '../loading/loading.component';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -58,7 +58,9 @@ export class BuildPollComponent implements OnInit {
   tryCreatePoll = function() : void {
     this.showSpinner = true;
     let pre = this.pollForm.value;
-    let poll = new Poll(pre.title, pre.pollOptions, this.getEmails(), pre.ownerEmail);
+    let poll = new PollPostModel(
+      pre.title, pre.pollOptions, this.getEmails(), pre.ownerEmail
+    );
     let res = this.pollService.upsertPoll(poll).subscribe((res) => {
       this.showSpinner = false;
       if (!res || res.error){

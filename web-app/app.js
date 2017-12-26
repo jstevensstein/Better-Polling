@@ -186,8 +186,8 @@ app.post('/closePoll/:id/', function(req, res){
     return;
   }
   PollsService.tryClosePollOfId(id)
-  .then(function(winner){
-    res.json({winner: winner});
+  .then(function(winnerId){
+    res.json({winnerId: winnerId});
   }, function(reason){
     if (reason.userMessage){
       res.json({error:{message: reason.userMessage}});

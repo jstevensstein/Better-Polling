@@ -16,9 +16,16 @@
     {{ballot.email}}
   </mat-list-item>
   <br/>
+  <ng-container *ngIf="hasWinner()">
+    <mat-card-subtitle>
+      Winner
+    </mat-card-subtitle>
+    {{getWinner()}}
+    <br/><br/>
+  </ng-container>
   <mat-card-actions>
-    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="closePoll()">Close Poll</button>
-    <button mat-raised-button color="primary" [disabled] (click)="openAddRecipientsDialog()">Add Recipients</button>
+    <button mat-raised-button color="primary" [disabled]="cannotClosePoll()" (click)="closePoll()">Close Poll</button>
+    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="openAddRecipientsDialog()">Add Recipients</button>
   </mat-card-actions>
 </mat-card>
 <loading *ngIf="showSpinner"></loading>

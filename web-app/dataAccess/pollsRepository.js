@@ -26,11 +26,17 @@ function PollsRepository(){
     this.getPollById = function(id){
         return pool.query('select * from `poll` where `id` = ?', [id])
         .then(function(rows){
-            let pollRow = rows[0];
-            if (!pollRow){
-                return Promise.reject('There is no such poll');
-            }
-            return new domain.Poll(pollRow.id, pollRow.name, pollRow.owner, !!pollRow.closed);
+          let pollRow = rows[0];
+          if (!pollRow){
+              return Promise.reject('There is no such poll');
+          }
+          return new domain.Poll(
+            pollRow.id,
+            pollRow.name,
+            pollRow.owner,
+            !!pollRow.closed,
+            pollRow.winner
+          );
         });
     }
 

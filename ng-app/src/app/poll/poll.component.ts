@@ -29,6 +29,18 @@ export class PollComponent implements OnInit {
       this.getPoll();
   }
 
+  hasWinner() : boolean {
+    return this.poll.winnerId && this.poll.winnerId > -1;
+  }
+
+  getWinner() : string {
+    return this.poll.getWinner();
+  }
+
+  cannotClosePoll() : boolean {
+    return this.poll.closed || !this.poll.ballots.some(b => b.complete);
+  }
+
   getToken(){
     return this.route.snapshot.queryParamMap.get('token');
   }
@@ -36,10 +48,13 @@ export class PollComponent implements OnInit {
   getPoll(){
     let id = parseInt(this.route.snapshot.paramMap.get('id'));
     this.pollService.getPoll(id, this.getToken()).subscribe(res => {
-      this.poll = res.poll as Poll;
+      this.poll = new Poll(
+        res.poll.name, res.poll.options, res.poll.id,
+        res.poll.closed, res.poll.ballots, res.poll.winnerId
+      );
       this.poll.ballots.sort(function(a,b){
         return (a.email > b.email) ? 1 : ((b.email > a.email) ? -1 : 0);
-      })
+      });
       this.showSpinner = false;
     });
   }
@@ -109,10 +124,11 @@ export class PollComponent implements OnInit {
       }
       else {
         this.poll.closed = true;
+        this.poll.winnerId = res.winnerId;
         this.notifyDialog.open(NotifyDialogComponent, {
           data: {
             title: 'Success',
-            message: `${res.winner} is the winner of your poll. We are emailing
+            message: `${this.getWinner()} is the winner of your poll. We are emailing
               the results to all of the ballot recipients.`,
             closeName: 'OK'
           }
