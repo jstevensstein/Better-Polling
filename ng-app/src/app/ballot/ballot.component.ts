@@ -38,10 +38,23 @@ export class BallotComponent implements OnInit {
     return this.route.snapshot.queryParamMap.get('token');
   }
 
+  shuffle(array) {
+    var i, j, temp;
+    for (i = 1; i < array.length; i++) {
+      j = Math.floor(Math.random() * (i + 1));
+      temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  }
+
   getBallot(){
     let id = parseInt(this.route.snapshot.paramMap.get('id'));
     this.pollService.getBallot(id, this.getToken()).subscribe(res => {
       this.ballot = res.ballot as Ballot;
+      if (!this.ballot.complete){
+        this.shuffle(this.ballot.options);
+      }
       this.showSpinner = false;
     });
   }
@@ -50,10 +63,10 @@ export class BallotComponent implements OnInit {
     if (!this.ballot.closed){
       return `Drag the options into your preferred order, then submit!
       Your first choice should be on top, your last choice on bottom. You may
-      resubmit at any point before the poll closes.`
+      resubmit at any point before the poll closes.`;
     }
     else {
-      return `This poll is now closed, but your ballot is displayed below.`
+      return `This poll is now closed, but your ballot is displayed below.`;
     }
   }
 

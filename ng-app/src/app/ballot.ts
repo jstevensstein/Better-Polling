@@ -4,6 +4,7 @@ export class Ballot{
     public pollId: number,
     public pollName: string,
     public options: {name: string, id: number}[],
-    public closed: boolean
+    public closed: boolean,
+    public complete: boolean
   ){}
 }
