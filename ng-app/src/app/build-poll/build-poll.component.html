@@ -41,21 +41,7 @@
             </div>
           </mat-step>
           <mat-step [stepControl]="pollForm.get('emailList')" [editable]="!pollCreated" label="Voter emails">
-            <mat-form-field class="example-full-width">
-              <textarea matInput matTextareaAutosize matAutosizeMinRows="3" placeholder="Enter a list of voter emails" formControlName="emailList" [errorStateMatcher]="errorStateMatcher"></textarea>
-              <mat-error *ngIf="pollForm.get('emailList').hasError('waiting')">
-                processing&hellip;
-              </mat-error>
-              <mat-error *ngIf="pollForm.get('emailList').hasError('invalidEmails')">
-                The folowing are invalid emails: {{firstInvalidEmails()}}
-              </mat-error>
-              <mat-error *ngIf="pollForm.get('emailList').hasError('tooFew')">
-                You must have at least two voters!
-              </mat-error>
-              <mat-error *ngIf="pollForm.get('emailList').hasError('required')">
-                You can't create a poll without voters!
-              </mat-error>
-            </mat-form-field>
+            <email-list-field matInput [parentFormGroup]="pollForm" [emailListFormControl]="pollForm.get('emailList')" [errorStateMatcher]="errorStateMatcher"></email-list-field>
             <div style="margin-top:10px;">
               <button mat-raised-button color="primary" [disabled]="!pollForm.valid" (click)="tryCreatePoll()">Create Poll</button>
             </div>

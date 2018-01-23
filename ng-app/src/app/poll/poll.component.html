@@ -5,19 +5,27 @@
   <mat-card-subtitle>
     Poll Options
   </mat-card-subtitle>
-  <mat-list-item *ngFor="let option of poll.options" >
+  <mat-list-item *ngFor="let option of poll.options">
     {{option}}
   </mat-list-item>
   <br/>
   <mat-card-subtitle>
     Poll Recipients
   </mat-card-subtitle>
-  <mat-list-item *ngFor="let ballot of poll.ballots" >
+  <mat-list-item *ngFor="let ballot of poll.ballots" [ngClass]="{'ballot-complete': ballot.complete}">
     {{ballot.email}}
   </mat-list-item>
   <br/>
+  <ng-container *ngIf="hasWinner()">
+    <mat-card-subtitle>
+      Winner
+    </mat-card-subtitle>
+    {{getWinner()}}
+    <br/><br/>
+  </ng-container>
   <mat-card-actions>
-    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="closePoll()" >Close Poll</button>
+    <button mat-raised-button color="primary" [disabled]="cannotClosePoll()" (click)="closePoll()">Close Poll</button>
+    <button mat-raised-button color="primary" [disabled]="poll.closed" (click)="openAddRecipientsDialog()">Add Recipients</button>
   </mat-card-actions>
 </mat-card>
 <loading *ngIf="showSpinner"></loading>

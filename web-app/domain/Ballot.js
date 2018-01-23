@@ -76,7 +76,8 @@ class Ballot{
                 pollId: this.pollId,
                 pollName: this.poll_.name,
                 options: options,
-                closed: this.poll_.closed
+                closed: this.poll_.closed,
+                complete: this.complete
             }
         });
     }

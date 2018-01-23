@@ -26,11 +26,17 @@ function PollsRepository(){
     this.getPollById = function(id){
         return pool.query('select * from `poll` where `id` = ?', [id])
         .then(function(rows){
-            let pollRow = rows[0];
-            if (!pollRow){
-                return Promise.reject('There is no such poll');
-            }
-            return new domain.Poll(pollRow.id, pollRow.name, pollRow.owner, !!pollRow.closed);
+          let pollRow = rows[0];
+          if (!pollRow){
+              return Promise.reject('There is no such poll');
+          }
+          return new domain.Poll(
+            pollRow.id,
+            pollRow.name,
+            pollRow.owner,
+            !!pollRow.closed,
+            pollRow.winner
+          );
         });
     }
 
@@ -115,7 +121,7 @@ function PollsRepository(){
         return Promise.using(getConnection(), function(connection) {
             return connection.beginTransaction()
             .then(function(){
-                return updateBallot(id, {complete: 1}, connection);
+                return updateBallotWithConnection(id, {complete: 1}, connection);
             })
             .then(function(){
                 return upsertBallotChoices(id, order, connection);
@@ -133,8 +139,12 @@ function PollsRepository(){
     }
 
     //TODO: same function w/out connection yet and commits?
-    function updateBallot(id, updates, connection){
+    function updateBallotWithConnection(id, updates, connection){
         return connection.query('update ballot set ? where `id` = ?', [updates, id]);
+    }
+
+    this.updateBallot = function(id, updates){
+      return pool.query('update ballot set ? where `id` = ?', [updates, id]);
     }
 
     //TODO: same function w/out connection yet and commits?

@@ -13,6 +13,7 @@ import { AppComponent } from './app.component';
 import { BuildOptionsComponent } from './build-options/build-options.component';
 import { NotifyDialogComponent } from './notify-dialog.component';
 import { PollService } from './poll.service';
+import { EmailUtilityService } from './email-utility.service';
 import { AppRoutingModule } from './/app-routing.module';
 import { BuildPollComponent } from './build-poll/build-poll.component';
 import { IndexComponent } from './index/index.component';
@@ -21,6 +22,8 @@ import { LoadingComponent} from './loading/loading.component';
 
 import { environment } from '../environments/environment';
 import { PollComponent } from './poll/poll.component';
+import { EmailListFieldComponent } from './email-list-field/email-list-field.component';
+import { AddRecipientsDialogComponent } from './add-recipients-dialog/add-recipients-dialog.component';
 
 
 @NgModule({
@@ -32,7 +35,9 @@ import { PollComponent } from './poll/poll.component';
     IndexComponent,
     BallotComponent,
     LoadingComponent,
-    PollComponent
+    PollComponent,
+    EmailListFieldComponent,
+    AddRecipientsDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -55,10 +60,12 @@ import { PollComponent } from './poll/poll.component';
   ],
   providers: [
     MatIconRegistry,
-    PollService
+    PollService,
+    EmailUtilityService
   ],
   entryComponents:[
-    NotifyDialogComponent
+    NotifyDialogComponent,
+    AddRecipientsDialogComponent
   ],
   bootstrap: [AppComponent]
 })

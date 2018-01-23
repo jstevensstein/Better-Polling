@@ -1,0 +1,7 @@
+/*.ballot-undelivered{
+    background-color: #EF9A9A;
+}*/
+
+:host ::ng-deep .ballot-complete > .mat-list-item-content {
+    background: #C8E6C9;
+}

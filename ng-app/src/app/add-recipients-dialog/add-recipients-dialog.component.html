@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>
+  Add New Recipients
+</h2>
+<div mat-dialog-content>
+  <email-list-field matInput [parentFormGroup]="emailListForm" [emailListFormControl]="emailListForm.get('emailList')" [newPoll]="false"></email-list-field>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button (click)="addRecipients()">Send Ballots</button>
+  </div>
+<div>
